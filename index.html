@@ -790,7 +790,7 @@ const url=kind=>{const u=URLS[kind]&&URLS[kind][st.pat];return u?STORE+u+UTM+'&u
 const patName=()=>PATS.find(p=>p.k===st.pat).n;
 // ---------- cadastro (cupom por e-mail) ----------
 // Endereço do Google Apps Script. Vazio = modo de teste (nada é enviado).
-const LEAD_ENDPOINT='';
+const LEAD_ENDPOINT='https://script.google.com/macros/s/AKfycbzmz2ltXFgdlttcok8iI71ryTOg0h4K0RTDK50cq-TMmsHD9wxhTiOWJgRx_4XdFo3D/exec';
 function leadPayload(){
   const recs={};['peitoral','bw','coleira'].forEach(k=>{const r=recommend(k);recs[k]=r.size||'-'});
   return {nome:$('lfNome').value.trim(),email:$('lfEmail').value.trim().toLowerCase(),whatsapp:$('lfZap').value.trim(),cachorro:$('lfDog').value.trim(),
