@@ -4,4 +4,4 @@ Provador online da Niko Dogs: o tutor escolhe o cachorro, as medidas, a estampa 
 
 - Endereço: https://provador.nikodogs.com.br
 - Página única: `index.html` (estampas, logos e fotos embutidos).
-- Em fase de teste: `robots.txt` e a meta `noindex` impedem que apareça no Google.
+- Publicado e aberto ao Google (robots.txt liberado) desde 19/11/2026.
