@@ -27,8 +27,10 @@
   .beta{display:inline-block;font-size:10.5px;background:var(--verde);color:var(--folha);border-radius:20px;padding:3px 10px;margin-top:12px;letter-spacing:.04em;text-transform:uppercase}
   main{max-width:1120px;margin:0 auto;padding:14px 12px 40px;display:grid;gap:14px}
   @media(min-width:920px){
-    main{grid-template-columns:1fr 1.15fr;grid-template-areas:"person stage" "dog stage" "dog result";align-items:start}
-    #person{grid-area:person}#dog{grid-area:dog}#stageWrap{grid-area:stage;position:sticky;top:12px}#result{grid-area:result}
+    main{grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);grid-template-areas:"person preview" "dog preview" "stage preview" "result preview";grid-template-rows:auto auto auto 1fr;align-items:start;column-gap:18px}
+    #person{grid-area:person}#dog{grid-area:dog}#stageWrap{grid-area:stage}#result{grid-area:result}
+    #preview{grid-area:preview;position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);overflow:auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px}
+    #preview .stage{max-height:calc(100vh - 150px)}
     .hero h1{font-size:40px}
   }
   details.sec>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px}
@@ -196,6 +198,7 @@
   <section id="stageWrap">
     <div class="card">
       <details class="sec" open><summary><h2><span class="n">3</span>Monte o passeio</h2><span class="sum" id="sumStage"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
+      <div id="previewBox">
       <div class="bar views">
         <button class="chip sm" data-group="view" data-val="lado" aria-pressed="true">De lado</button>
         <button class="chip sm" data-group="view" data-val="pov" aria-pressed="false">Seu olhar (de cima)</button>
@@ -219,6 +222,7 @@
         <button class="chip sm" data-group="scene" data-val="rua" aria-pressed="false">Rua</button>
         <button class="chip sm" data-group="scene" data-val="neutro" aria-pressed="false">Neutro</button>
       </div>
+      </div>
       <div class="step">
         <h3>Estampa</h3>
         <div class="pats" id="pats"></div>
@@ -240,6 +244,8 @@
       </div>
     </div></details></div>
   </section>
+
+  <aside id="preview" hidden></aside>
 
   <!-- 4. RESULTADO -->
   <section class="card" id="result">
@@ -903,6 +909,10 @@ function init(){
   const sw=p=>`<button class="pat" data-p="${p.k}" aria-pressed="${p.k===st.pat}"><svg viewBox="0 0 60 14" preserveAspectRatio="none"><rect width="60" height="14" fill="url(#${TILES[p.k]?'sw-'+p.k:p.id})"/></svg>${p.n}</button>`;
   $('pats').innerHTML=[['Originals',['shore','horizon','checker']],['Artist Series',['planet','flavours']],['Colors',['black','verde','laranja']]].map(([f,ks])=>`<div class="fam" style="grid-column:1/-1">${f}</div>`+ks.map(k=>sw(PATS.find(p=>p.k===k))).join('')).join('');
   $('pats').onclick=e=>{const b=e.target.closest('.pat');if(!b)return;st.pat=b.dataset.p;$('pats').querySelectorAll('.pat').forEach(x=>x.setAttribute('aria-pressed',x===b));render()};
+  // No computador, a imagem fica fixa na coluna da direita e os controles rolam à esquerda.
+  const mq=matchMedia('(min-width:920px)'),pb=$('previewBox'),home=$('stage').closest('.secbody'),homeNext=home.querySelector('.step');
+  const placePreview=()=>{if(mq.matches){$('preview').hidden=false;$('preview').appendChild(pb);}else{$('preview').hidden=true;home.insertBefore(pb,homeNext);}};
+  placePreview();mq.addEventListener('change',placePreview);
   $('leadForm').addEventListener('submit',sendLead);$('lfAdd').addEventListener('click',addExtraDog);
   $('capBtn').onclick=()=>{st.cap=!st.cap;$('capBtn').setAttribute('aria-pressed',st.cap);render()};
   document.addEventListener('click',e=>{const b=e.target.closest('.chip[data-group]');if(!b)return;const grp=b.dataset.group;
