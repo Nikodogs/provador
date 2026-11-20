@@ -105,6 +105,10 @@
   .lead-h{font-family:'Rubik Mono One',sans-serif;font-size:14px;color:var(--marrom)}
   .lead-p{font-size:12.5px;line-height:1.55;margin:8px 0 0}
   .lead input[type=text],.lead input[type=email],.lead input[type=tel]{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid #ecd6ad;border-radius:12px;background:var(--olho);color:var(--ink)}
+  .xdog{display:grid;grid-template-columns:1.1fr 1.3fr .7fr auto;gap:6px;align-items:end;margin-top:8px}
+  .xdog input,.xdog select{min-width:0}
+  .xdog .rm{border:0;background:none;color:var(--marrom);font-size:20px;line-height:1;padding:0 4px 10px;cursor:pointer}
+  .addDog{border:0;background:none;color:var(--marrom);font:inherit;font-size:12.5px;text-decoration:underline;cursor:pointer;padding:0;margin-top:10px}
   .ck{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.45;margin-top:10px}
   .ck input{margin-top:2px;accent-color:var(--marrom)}
   .ck a{color:var(--marrom)}
@@ -243,12 +247,14 @@
     <div id="recs"></div>
     <div class="lead" id="lead">
       <div class="lead-h">Ganhe 15% na primeira compra</div>
-      <p class="lead-p">Receba por e-mail a ficha do seu cachorro, com os tamanhos certos de cada produto, e um cupom de 15% para a primeira compra no site.</p>
+      <p class="lead-p">Receba por e-mail a ficha do seu cachorro (ou dos seus cachorros), com os tamanhos certos de cada produto, e um cupom de 15% para a primeira compra no site.</p>
       <form id="leadForm" novalidate>
         <div class="row">
           <div><label class="f" for="lfNome">Seu nome</label><input type="text" id="lfNome" autocomplete="given-name" required></div>
           <div><label class="f" for="lfDog">Nome do cachorro</label><input type="text" id="lfDog" required></div>
         </div>
+        <div id="lfExtras" style="display:none"><p class="hint" style="margin:12px 0 0;font-size:11.5px">Outros cachorros: o tamanho sai estimado pela raça e pelo peso.</p></div>
+        <button type="button" class="addDog" id="lfAdd">+ adicionar outro cachorro</button>
         <label class="f" for="lfEmail">E-mail</label><input type="email" id="lfEmail" autocomplete="email" inputmode="email" required>
         <label class="f" for="lfZap">WhatsApp (opcional)</label><input type="tel" id="lfZap" autocomplete="tel" inputmode="tel" placeholder="(19) 99999-9999">
         <input type="text" id="lfHp" tabindex="-1" autocomplete="off" style="position:absolute;left:-5000px" aria-hidden="true">
@@ -385,8 +391,8 @@ const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
 function shade(hex,amt){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=c=>clamp(Math.round(amt>0?c*(1-amt):c+(255-c)*-amt),0,255);return '#'+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
 const breed=()=>BREEDS.find(b=>b[0]===st.breed);
 
-function estimate(){
-  const b=breed()[2];const kg=st.kg;let neck,chest,h;
+function estimate(bid,kgIn){
+  const b=(bid?BREEDS.find(x=>x[0]===bid):breed())[2];const kg=kgIn||st.kg;let neck,chest,h;
   if(b){const r=kg/b[0];neck=b[1]*Math.pow(r,.32);chest=b[2]*Math.pow(r,.38);h=b[3]*Math.pow(r,.4);}
   else{const r=kg/3;neck=24*Math.pow(r,.319);chest=36*Math.pow(r,.378);h=22*Math.pow(r,.413);}
   return {neck:Math.round(neck),chest:Math.round(chest),h,front:Math.round(chest*.48)};
@@ -395,13 +401,13 @@ function estimate(){
 // ---------- tamanhos ----------
 const fitOne=(v,r)=>v>=r[0]&&v<=r[1];
 const centerScore=(v,r)=>Math.abs((v-r[0])/(r[1]-r[0])-.5);
-function recommend(kind){
-  const tab=T[kind],vals={neck:st.neck,chest:st.chest};
+function recommend(kind,given){
+  const tab=T[kind],vals=given||{neck:st.neck,chest:st.chest},front=given?null:st.front;
   const keys=kind==='coleira'?['neck']:kind==='bw'?['chest']:['neck','chest'];
   const sc=r=>keys.reduce((s,k)=>s+centerScore(vals[k],r[k]),0);
   const ok=tab.filter(r=>keys.every(k=>fitOne(vals[k],r[k]))).sort((a,b)=>sc(a)-sc(b));
   if(ok.length){const best=ok[0];let frontNote=null;
-    if(kind==='bw'&&st.front&&!fitOne(st.front,best.front))frontNote=`A frente do peito (${st.front} cm) fica fora da regulagem do ${best.s} (${best.front[0]}–${best.front[1]} cm). Vale falar com a gente antes.`;
+    if(kind==='bw'&&front&&!fitOne(front,best.front))frontNote=`A frente do peito (${front} cm) fica fora da regulagem do ${best.s} (${best.front[0]}–${best.front[1]} cm). Vale falar com a gente antes.`;
     return {size:best.s,row:best,alt:ok.slice(1).map(r=>r.s),frontNote};}
   const main=keys.includes('chest')?'chest':'neck',v=vals[main],first=tab[0],last=tab[tab.length-1];
   if(v<first[main][0])return {size:null,msg:`Medida menor que o nosso menor tamanho (${first.s}). Fale com a gente.`};
@@ -791,6 +797,32 @@ const patName=()=>PATS.find(p=>p.k===st.pat).n;
 // ---------- cadastro (cupom por e-mail) ----------
 // Endereço do Google Apps Script. Vazio = modo de teste (nada é enviado).
 const LEAD_ENDPOINT='https://script.google.com/macros/s/AKfycbzmz2ltXFgdlttcok8iI71ryTOg0h4K0RTDK50cq-TMmsHD9wxhTiOWJgRx_4XdFo3D/exec';
+const MAX_EXTRAS=3;
+function breedOptions(sel){return [[1,'Mais comuns no Brasil'],[2,'Outras raças'],[3,'Asiáticas e tipo spitz']].map(([g,n])=>`<optgroup label="${n}">${BREEDS.filter(b=>b[10]===g).map(b=>`<option value="${b[0]}"${b[0]===sel?' selected':''}>${b[1]}</option>`).join('')}</optgroup>`).join('');}
+function addExtraDog(){
+  const box=$('lfExtras');if(box.querySelectorAll('.xdog').length>=MAX_EXTRAS)return;
+  const i=Date.now()%1e6,el=document.createElement('div');el.className='xdog';
+  el.innerHTML=`<div><label class="f" for="xn${i}">Nome</label><input type="text" id="xn${i}" class="xn" placeholder="Nome"></div>
+    <div><label class="f" for="xb${i}">Raça</label><select id="xb${i}" class="xb">${breedOptions('srd')}</select></div>
+    <div><label class="f" for="xk${i}">Kg</label><input type="number" id="xk${i}" class="xk" min="1" max="80" step="0.5" inputmode="decimal"></div>
+    <button type="button" class="rm" aria-label="Remover este cachorro">×</button>`;
+  el.querySelector('.rm').onclick=()=>{el.remove();addBtn();};
+  box.appendChild(el);addBtn();el.querySelector('.xn').focus();
+}
+function addBtn(){const n=$('lfExtras').querySelectorAll('.xdog').length;$('lfExtras').style.display=n?'':'none';$('lfAdd').style.display=n>=MAX_EXTRAS?'none':'';$('lfAdd').textContent=n?'+ adicionar mais um':'+ adicionar outro cachorro';}
+function extraDogs(){
+  const out=[];let err='';
+  [...$('lfExtras').querySelectorAll('.xdog')].forEach(el=>{
+    const nome=el.querySelector('.xn').value.trim(),bid=el.querySelector('.xb').value,kg=parseFloat(String(el.querySelector('.xk').value).replace(',','.'));
+    if(!nome&&!kg)return;
+    if(!nome){err='Coloque o nome do outro cachorro.';return;}
+    if(!(kg>=1&&kg<=80)){err=`Coloque o peso do ${nome} (em kg).`;return;}
+    const e=estimate(bid,kg),v={neck:e.neck,chest:e.chest},sz=k=>recommend(k,v).size||'-';
+    out.push({cachorro:nome,raca:BREEDS.find(b=>b[0]===bid)[1],peso:kg,pescoco:e.neck,torax:e.chest,medidas:'estimadas',
+      tam_peitoral:sz('peitoral'),tam_betterwalk:sz('bw'),tam_coleira:sz('coleira')});
+  });
+  return {out,err};
+}
 function leadPayload(){
   const recs={};['peitoral','bw','coleira'].forEach(k=>{const r=recommend(k);recs[k]=r.size||'-'});
   return {nome:$('lfNome').value.trim(),email:$('lfEmail').value.trim().toLowerCase(),whatsapp:$('lfZap').value.trim(),cachorro:$('lfDog').value.trim(),
@@ -804,6 +836,7 @@ async function sendLead(e){
   const d=leadPayload();
   if(!d.nome||!d.cachorro)return err.textContent='Preencha o seu nome e o do cachorro.';
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email))return err.textContent='Confira o e-mail.';
+  const xd=extraDogs();if(xd.err)return err.textContent=xd.err;d.extras=xd.out;
   if(!d.privacidade)return err.textContent='Para enviar o cupom, precisamos que você aceite a política de privacidade.';
   $('lfBtn').disabled=true;$('lfBtn').textContent='Enviando...';
   let ok=false;
@@ -811,7 +844,7 @@ async function sendLead(e){
   if(LEAD_ENDPOINT&&!ok){$('lfBtn').disabled=false;$('lfBtn').textContent='Quero meu cupom';return err.textContent='Não conseguimos enviar agora. Tente de novo em instantes.';}
   $('leadForm').style.display='none';
   $('leadOk').style.display='block';
-  $('leadOk').innerHTML=LEAD_ENDPOINT?`<p class="lead-p"><strong>Pronto, ${d.nome}!</strong> Mandamos a ficha do ${d.cachorro} e o seu cupom para <strong>${d.email}</strong>. Se não aparecer em alguns minutos, olhe a caixa de spam ou promoções.</p>`
+  $('leadOk').innerHTML=LEAD_ENDPOINT?`<p class="lead-p"><strong>Pronto, ${d.nome}!</strong> Mandamos ${d.extras.length?'as fichas dos seus cachorros':'a ficha do '+d.cachorro} e o seu cupom para <strong>${d.email}</strong>. Se não aparecer em alguns minutos, olhe a caixa de spam ou promoções.</p>`
     :`<p class="lead-p"><strong>Modo de teste:</strong> nada foi enviado. Quando o provador estiver no domínio da Niko, estes dados vão para a planilha e o cupom segue por e-mail:</p><pre style="font-size:10.5px;white-space:pre-wrap;background:var(--olho);border-radius:10px;padding:10px;margin:8px 0 0">${JSON.stringify(d,null,1).replace(/</g,'&lt;')}</pre>`;
 }
 function renderRecs(){
@@ -870,7 +903,7 @@ function init(){
   const sw=p=>`<button class="pat" data-p="${p.k}" aria-pressed="${p.k===st.pat}"><svg viewBox="0 0 60 14" preserveAspectRatio="none"><rect width="60" height="14" fill="url(#${TILES[p.k]?'sw-'+p.k:p.id})"/></svg>${p.n}</button>`;
   $('pats').innerHTML=[['Originals',['shore','horizon','checker']],['Artist Series',['planet','flavours']],['Colors',['black','verde','laranja']]].map(([f,ks])=>`<div class="fam" style="grid-column:1/-1">${f}</div>`+ks.map(k=>sw(PATS.find(p=>p.k===k))).join('')).join('');
   $('pats').onclick=e=>{const b=e.target.closest('.pat');if(!b)return;st.pat=b.dataset.p;$('pats').querySelectorAll('.pat').forEach(x=>x.setAttribute('aria-pressed',x===b));render()};
-  $('leadForm').addEventListener('submit',sendLead);
+  $('leadForm').addEventListener('submit',sendLead);$('lfAdd').addEventListener('click',addExtraDog);
   $('capBtn').onclick=()=>{st.cap=!st.cap;$('capBtn').setAttribute('aria-pressed',st.cap);render()};
   document.addEventListener('click',e=>{const b=e.target.closest('.chip[data-group]');if(!b)return;const grp=b.dataset.group;
     if(grp==='wear'&&st.wear===b.dataset.val){st.wear='none';b.setAttribute('aria-pressed','false');render();return;}
