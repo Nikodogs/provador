@@ -480,51 +480,251 @@ function slider(p,t,a){return `<g transform="translate(${p[0]},${p[1]}) rotate($
 function snap(p,t,a){return `<g transform="translate(${p[0]},${p[1]}) rotate(${a})"><rect x="0" y="${-t*.32}" width="${t*1.8}" height="${t*.64}" rx="${t*.32}" fill="#cfcdc8" stroke="#7d7b76" stroke-width="${t*.08}"/><circle cx="${t*1.8}" cy="0" r="${t*.38}" fill="none" stroke="#a9a7a2" stroke-width="${t*.16}"/></g>`}
 
 // ---------- cachorro de lado ----------
-function dogSide(){
-  const b=breed(),P=BODY[b[3]],ear=b[4],tail=b[5],fluffy=b[6];
-  const coat=st.coat,far=shade(coat,.3),mk=st.mark,dark=shade(b[9]||coat,.2);
-  const X0=110,bellyY=230-P.leg,backY=bellyY-P.bd,{bl,bd}=P;
-  const hd=P.hd,hx=X0-P.nk*.32,hy=backY-P.nk*.95,lw=Math.max(11,bd*.23);
-  const fur=fluffy?' filter="url(#fur)"':'';
-  let g='';
-  // pernas do lado de lá
-  g+=`<g${fur}><rect x="${X0+40}" y="${backY+bd*.5}" width="${lw*.92}" height="${230-backY-bd*.5}" rx="${lw*.46}" fill="${far}"/>`+
-     `<rect x="${X0+bl-56}" y="${backY+bd*.55}" width="${lw*.92}" height="${230-backY-bd*.55}" rx="${lw*.46}" fill="${far}"/></g>`;
-  // cauda
-  const tb=[X0+bl-14,backY+7],tw=Math.max(7,bd*.15);
-  let tp='';
-  if(tail==='up')tp=`M${tb[0]} ${tb[1]} Q${tb[0]+34} ${tb[1]-6} ${tb[0]+40} ${tb[1]-44}`;
-  if(tail==='curl')tp=`M${tb[0]} ${tb[1]} C${tb[0]+30} ${tb[1]-28} ${tb[0]-4} ${tb[1]-46} ${tb[0]-12} ${tb[1]-20}`;
-  if(tail==='down')tp=`M${tb[0]} ${tb[1]} Q${tb[0]+30} ${tb[1]+18} ${tb[0]+26} ${tb[1]+bd*.95}`;
-  if(tail==='plume')tp=`M${tb[0]} ${tb[1]} Q${tb[0]+42} ${tb[1]+6} ${tb[0]+50} ${tb[1]+bd*.7}`;
-  if(tail==='stub')tp=`M${tb[0]} ${tb[1]} q8 2 10 10`;
-  g+=`<path d="${tp}" stroke="${coat}" stroke-width="${tail==='plume'?tw*1.9:tw}" fill="none" stroke-linecap="round"${fur}/>`;
-  // corpo + pescoço + cabeça
-  const body=`M${X0+28} ${backY} C${X0+bl*.5} ${backY-4} ${X0+bl-40} ${backY+2} ${X0+bl-22} ${backY+4} C${X0+bl+6} ${backY+6} ${X0+bl+8} ${backY+bd*.55} ${X0+bl-6} ${bellyY-bd*.12} C${X0+bl-18} ${bellyY+4} ${X0+bl-40} ${bellyY} ${X0+bl-55} ${bellyY-bd*.14} C${X0+bl*.55} ${bellyY-bd*.2} ${X0+62} ${bellyY+4} ${X0+30} ${bellyY+2} C${X0+4} ${bellyY} ${X0-6} ${backY+bd*.55} ${X0+2} ${backY+bd*.25} C${X0+6} ${backY+6} ${X0+18} ${backY} ${X0+28} ${backY}Z`;
-  const neck=`M${X0+36} ${backY+2} C${X0+22} ${backY-P.nk*.4} ${hx+hd*.9} ${hy+hd*.1} ${hx+hd*.5} ${hy-hd*.55} L${hx-hd*.25} ${hy+hd*.6} C${hx} ${hy+hd*1.25} ${X0-4} ${backY+bd*.2} ${X0+2} ${backY+bd*.42}Z`;
-  const thigh=`<ellipse cx="${X0+bl-32}" cy="${backY+bd*.58}" rx="${bd*.34}" ry="${bd*.44}" fill="${coat}"/>`;
-  const headC=b[9]||coat;
-  g+=`<g${fur}><path d="${body}" fill="${coat}"/>${thigh}<path d="${neck}" fill="${coat}"/><ellipse cx="${hx}" cy="${hy}" rx="${hd}" ry="${hd*.92}" fill="${headC}"/></g>`;
-  if(b[9])g+=`<ellipse cx="${hx-hd*.35}" cy="${hy+hd*.35}" rx="${hd*.5}" ry="${hd*.45}" fill="${coat}"/>`;
-  // volume: sombra da barriga e luz do dorso
-  g+=`<path d="${body}" fill="url(#bodyShade)" opacity=".55"/>`;
-  // detalhe (peito)
-  if(mk)g+=`<ellipse cx="${X0+10}" cy="${backY+bd*.62}" rx="${bd*.2}" ry="${bd*.34}" fill="${mk}"${fur}/>`;
-  // focinho, nariz, olho, boca
-  const sx=hx-hd*.55,sy=hy+hd*.3,sn=P.sn,sh=P.snH;
-  g+=`<rect x="${sx-sn}" y="${sy-sh/2}" width="${sn+hd*.5}" height="${sh}" rx="${sh*.48}" fill="${mk&&!DARKFACE.includes(b[3])?mk:(DARKFACE.includes(b[3])?'#2b2724':coat)}"${fur}/>`;
-  if(b[3]==='pug'||b[3]==='frenchie'||b[3]==='sharpei'||b[3]==='chow')g+=`<path d="M${hx-hd*.55} ${hy-hd*.1} q${hd*.3} ${-hd*.12} ${hd*.55} 0" stroke="${dark}" stroke-width="1.6" fill="none"/>`;
-  if(b[3]==='sharpei')g+=`<path d="M${hx-hd*.2} ${hy-hd*.5} q${hd*.3} ${-hd*.1} ${hd*.6} 0 M${hx-hd*.1} ${hy+hd*.6} q${hd*.3} ${hd*.15} ${hd*.6} 0 M${X0+5} ${backY+bd*.15} q${bd*.2} ${bd*.1} ${bd*.35} 0" stroke="${dark}" stroke-width="1.6" fill="none"/>`;
-  g+=`<ellipse cx="${sx-sn+2}" cy="${sy-sh*.22}" rx="${Math.max(3.5,sh*.27)}" ry="${Math.max(2.8,sh*.22)}" fill="#1a1918"/>`;
-  g+=`<path d="M${sx-sn+3} ${sy+sh*.28} Q${sx-sn*.3} ${sy+sh*.55} ${sx+hd*.12} ${sy+sh*.2}" stroke="${shade(coat,.45)}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
-  g+=`<circle cx="${hx-hd*.3}" cy="${hy-hd*.15}" r="${Math.max(2.6,hd*.11)}" fill="#1a1918"/><circle cx="${hx-hd*.33}" cy="${hy-hd*.19}" r="${Math.max(.8,hd*.035)}" fill="#fff"/>`;
-  // orelha
-  if(ear==='flop'){const ry=b[3]==='beagle'||b[3]==='salsicha'?hd*.95:hd*.7;g+=`<ellipse cx="${hx+hd*.32}" cy="${hy+hd*.12}" rx="${hd*.33}" ry="${ry}" fill="${dark}" transform="rotate(10 ${hx+hd*.32} ${hy+hd*.12})"${fur}/>`;}
-  const eu=b[3]==='chow'?.55:1;
-  if(ear==='up')g+=`<path d="M${hx+hd*.08} ${hy-hd*.62} L${hx+hd*.36} ${hy-hd*(.62+1.18*eu)} L${hx+hd*.7} ${hy-hd*.46}Z" fill="${dark}" stroke="${dark}" stroke-width="3" stroke-linejoin="round"${fur}/>`;
-  if(ear==='bat')g+=`<path d="M${hx-hd*.05} ${hy-hd*.55} Q${hx-hd*.05} ${hy-hd*1.75} ${hx+hd*.45} ${hy-hd*1.7} Q${hx+hd*.85} ${hy-hd*1.1} ${hx+hd*.7} ${hy-hd*.4}Z" fill="${dark}"/>`;
-  if(ear==='semi')g+=`<path d="M${hx} ${hy-hd*.6} L${hx+hd*.3} ${hy-hd*1.4} L${hx+hd*.74} ${hy-hd*.42}Z" fill="${dark}" stroke="${dark}" stroke-width="2.5" stroke-linejoin="round"/><path d="M${hx+hd*.1} ${hy-hd*1.02} L${hx+hd*.3} ${hy-hd*1.4} L${hx-hd*.16} ${hy-hd*1.12}Z" fill="${shade(dark,.2)}" stroke="${shade(dark,.2)}" stroke-width="2" stroke-linejoin="round"/>`;
+// ---------- Cachorro de lado v3: silhueta única suavizada (estilo do logo) ----------
+// Desenho: o cachorro olha para a esquerda; X0 = frente do peito; chão em y=230.
+function smoothPath(pts,closed=true,k=.5){ // Catmull-Rom -> Bézier; ponto com [x,y,1] vira quina
+  const n=pts.length,P=i=>pts[(i+n)%n];let d=`M${P(0)[0].toFixed(1)} ${P(0)[1].toFixed(1)}`;
+  for(let i=0;i<(closed?n:n-1);i++){const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);
+    const t1=p1[2]?[0,0]:[(p2[0]-p0[0])*k/3,(p2[1]-p0[1])*k/3], t2=p2[2]?[0,0]:[(p3[0]-p1[0])*k/3,(p3[1]-p1[1])*k/3];
+    d+=` C${(p1[0]+t1[0]).toFixed(1)} ${(p1[1]+t1[1]).toFixed(1)} ${(p2[0]-t2[0]).toFixed(1)} ${(p2[1]-t2[1]).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;}
+  return d+(closed?'Z':'');
+}
+const DOGSPEC={
+  // skull round|flat|wedge|broad|apple · muz tapered|square|flat|snipy · ear prick|prickL|tiny|bat|semi|button|rose|drop|long|feather|curly
+  // tail sickle|brushUp|curl|curlTight|curlFluff|otter|saber|brush|plume|plumeUp|whip|stub|pom · coat smooth|short|double|long|silky|curly|wire|feather
+  srd:      {skull:'wedge',muz:'tapered',ear:'semi',tail:'sickle',coat:'short',pat:'blaze',slope:2,tuck:.2},
+  caramelo: {skull:'wedge',muz:'tapered',ear:'semi',tail:'sickle',coat:'short',pat:'solid',slope:2,tuck:.22},
+  shihtzu:  {skull:'apple',muz:'flat',ear:'long',tail:'plumeUp',coat:'long',pat:'parti',tuck:0},
+  yorkshire:{skull:'apple',muz:'tapered',ear:'prick',tail:'plumeUp',coat:'silky',pat:'yorkie',tuck:0},
+  spitz:    {skull:'apple',muz:'snipy',ear:'tiny',tail:'curlFluff',coat:'double',pat:'solid',tuck:0},
+  lhasa:    {skull:'apple',muz:'square',ear:'long',tail:'plumeUp',coat:'long',pat:'solid',tuck:0},
+  golden:   {skull:'broad',muz:'square',ear:'drop',tail:'plume',coat:'feather',pat:'solid',slope:2,tuck:.14},
+  pinscher: {skull:'wedge',muz:'snipy',ear:'prick',tail:'sickle',coat:'smooth',pat:'tan',slope:1,tuck:.3},
+  dachshund:{skull:'wedge',muz:'tapered',ear:'long',tail:'saber',coat:'smooth',pat:'solid',tuck:.08},
+  poodle:   {skull:'round',muz:'tapered',ear:'curly',tail:'pom',coat:'curly',pat:'solid',tuck:.22},
+  maltes:   {skull:'apple',muz:'square',ear:'long',tail:'plumeUp',coat:'long',pat:'solid',tuck:0},
+  labrador: {skull:'broad',muz:'square',ear:'drop',tail:'otter',coat:'short',pat:'solid',slope:1,tuck:.12},
+  frenchie: {skull:'broad',muz:'flat',ear:'bat',tail:'stub',coat:'smooth',pat:'solid',slope:-3,tuck:.22},
+  pug:      {skull:'apple',muz:'flat',ear:'rose',tail:'curlTight',coat:'smooth',pat:'mask',tuck:.06},
+  border:   {skull:'wedge',muz:'tapered',ear:'semi',tail:'brush',coat:'feather',pat:'blaze',slope:2,tuck:.2},
+  heeler:   {skull:'broad',muz:'tapered',ear:'prick',tail:'brush',coat:'short',pat:'heeler',slope:1,tuck:.18},
+  fox:      {skull:'wedge',muz:'tapered',ear:'button',tail:'stub',coat:'smooth',pat:'foxp',tuck:.26},
+  aussie:   {skull:'wedge',muz:'tapered',ear:'semi',tail:'stub',coat:'feather',pat:'merle',slope:1,tuck:.16},
+  husky:    {skull:'wedge',muz:'tapered',ear:'prick',tail:'brushUp',coat:'double',pat:'husky',tuck:.16},
+  pastor:   {skull:'wedge',muz:'tapered',ear:'prickL',tail:'brush',coat:'short',pat:'saddle',slope:9,tuck:.18},
+  rottweiler:{skull:'broad',muz:'square',ear:'drop',tail:'saber',coat:'smooth',pat:'tan',tuck:.12},
+  pitbull:  {skull:'broad',muz:'square',ear:'rose',tail:'whip',coat:'smooth',pat:'blaze',tuck:.24},
+  beagle:   {skull:'round',muz:'square',ear:'long',tail:'sickle',coat:'short',pat:'tri',tuck:.14},
+  schnauzer:{skull:'flat',muz:'square',ear:'button',tail:'stub',coat:'wire',pat:'solid',slope:2,tuck:.2},
+  cocker:   {skull:'round',muz:'square',ear:'feather',tail:'stub',coat:'feather',pat:'solid',slope:3,tuck:.1},
+  jack:     {skull:'wedge',muz:'tapered',ear:'button',tail:'sickle',coat:'smooth',pat:'jack',tuck:.2},
+  chihuahua:{skull:'apple',muz:'snipy',ear:'bat',tail:'sickle',coat:'smooth',pat:'solid',tuck:.22},
+  shiba:    {skull:'broad',muz:'tapered',ear:'prick',tail:'curlTight',coat:'double',pat:'urajiro',tuck:.16},
+  akita:    {skull:'broad',muz:'square',ear:'prick',tail:'curlTight',coat:'double',pat:'urajiro',tuck:.12},
+  spitzjp:  {skull:'round',muz:'snipy',ear:'prick',tail:'curlFluff',coat:'double',pat:'solid',tuck:.06},
+  samoieda: {skull:'broad',muz:'tapered',ear:'prick',tail:'curlFluff',coat:'double',pat:'solid',tuck:.08},
+  chow:     {skull:'broad',muz:'square',ear:'tiny',tail:'curlFluff',coat:'double',pat:'solid',tuck:.02},
+  sharpei:  {skull:'broad',muz:'square',ear:'rose',tail:'curlTight',coat:'smooth',pat:'solid',tuck:.1},
+  pequines: {skull:'apple',muz:'flat',ear:'long',tail:'plumeUp',coat:'long',pat:'mask',tuck:0},
+  basenji:  {skull:'wedge',muz:'tapered',ear:'prick',tail:'curlTight',coat:'smooth',pat:'blaze',tuck:.3}
+};
 
+function dogDraw(b,P,coat,mk){
+  const S=DOGSPEC[b[0]]||DOGSPEC.srd;
+  const X0=110,G=230,{bl,bd}=P,leg=P.leg,bellyY=G-leg,backY=bellyY-bd;
+  const dk=a=>shade(coat,a), lt=a=>shade(coat,-a);
+  const white='#f6f1e7', black='#242120', tan=(mk&&parseInt(mk.slice(1,3),16)<200&&mk!==black)?mk:'#c27d45';
+  const fluffy=['double','long','silky','curly'].includes(S.coat);
+  const big=P.bd>=64&&S.skull!=='apple';const hd=P.hd*(big?1.28:1.14), snL=(S.muz==='flat'?.35:S.muz==='snipy'?1.1:1)*P.sn*(big?.95:1.02), snH=P.snH*(big?1.18:1.06);
+  const w=Math.max(8.5,bd*.19)*(S.coat==='double'?1.1:1), pawL=w*1.15;
+  const slope=S.slope||0, tuck=S.tuck==null?.18:S.tuck;
+  // esqueleto
+  const nk=P.nk, Hc=[X0-nk*.12-hd*.15,backY-nk*.6-hd*.15-(S.coat==='double'?hd*.05:0)];
+  const fX=X0+bd*.22, hX=X0+bl-bd*.36; // patas dianteira e traseira (lado de cá)
+  const stopY=Hc[1]-hd*({apple:.25,round:.12,broad:.05,wedge:-.02,flat:-.08}[S.skull]||0);
+  const nose=[Hc[0]-hd*.72-snL, Hc[1]+hd*.2];
+  const skullW={flat:1.12,wedge:1.04,broad:1.08,round:1,apple:.98}[S.skull]||1;
+  const lowJaw=S.muz==='square'?snH*.95:S.muz==='flat'?snH*.9:snH*.75;
+  const head=[
+    [nose[0],nose[1]-snH*.38,1],
+    [nose[0]+snL*.5,(nose[1]-snH*.45)*.55+stopY*.45],
+    [Hc[0]-hd*.72,stopY],
+    [Hc[0]-hd*.5*skullW,Hc[1]-hd*.68],
+    [Hc[0]+hd*.05,Hc[1]-hd*.92],
+    [Hc[0]+hd*.6*skullW,Hc[1]-hd*.55],
+  ];
+  const neckTop=[[Hc[0]+hd*.95,Hc[1]-hd*.08],[X0+bd*.18,backY-bd*.2-nk*.06]];
+  const W=[X0+bd*.42,backY-1],M=[X0+bl*.55,backY+slope*.45],C=[X0+bl-bd*.32,backY+slope],R=[X0+bl+bd*.04,backY+bd*.32+slope*.6];
+  const hind=[ // traseira: coxa, jarrete, pata
+    [X0+bl+bd*.02,bellyY-bd*.12],
+    [hX+w*.65,G-leg*.36],
+    [hX+w*.55,G-w*.75],
+    [hX+w*.62,G,1],[hX-pawL*.75,G,1],
+    [hX-w*.4,G-w*.85],
+    [hX-w*.3,G-leg*.34],
+    [hX-bd*.3,bellyY+leg*.16],
+    [hX-bd*.42,bellyY-bd*.02],
+  ];
+  const belly=[[X0+bl-bd*.82,bellyY-bd*tuck],[X0+bl*.42,bellyY-bd*tuck*.35],[X0+bd*.62,bellyY+bd*.04]];
+  const front=[ // dianteira: cotovelo, pata
+    [fX+w*1.15,bellyY+leg*.05],
+    [fX+w*.95,G-leg*.38],
+    [fX+w*.92,G-w*.6],
+    [fX+w*.95,G,1],[fX-pawL*.8,G,1],
+    [fX-w*.1,G-w*1.05],
+    [fX-w*.05,bellyY+leg*.12],
+  ];
+  const chest=[[X0+bd*.02,bellyY-bd*.18],[X0-bd*.08,backY+bd*.5]];
+  const throat=[[X0-bd*.12,backY+bd*.12],[Hc[0]+hd*.35,Hc[1]+hd*.95],[Hc[0]-hd*.25,Hc[1]+hd*.72]];
+  const jaw=[[Hc[0]-hd*.62,Hc[1]+hd*.56],[nose[0]+snL*.35,nose[1]+lowJaw*.62],[nose[0]+1,nose[1]+snH*.3,1]];
+  let sil=[...head,...neckTop,W,M,C,R,...hind,...belly,...front,...chest,...throat,...jaw];
+  // pelagem: ajustes de contorno
+  if(S.coat==='double'){ // juba: pescoço e peito mais cheios
+    neckTop[1][1]-=bd*.12;chest[1][0]-=bd*.12;throat[0][0]-=bd*.12;throat[1][1]+=hd*.15;
+    sil=[...head,...neckTop,W,M,C,R,...hind,...belly,...front,...chest,...throat,...jaw];
+  }
+  const silD=smoothPath(sil);
+  // pernas do lado de lá (mais escuras, levemente deslocadas)
+  const legPts=(arr,dx)=>arr.map(p=>[p[0]+dx,p[1],p[2]]);
+  const farFront=smoothPath([[fX+bd*.3,bellyY-bd*.35],...legPts(front,bd*.3).slice(0,7),[fX+bd*.3-w*.2,bellyY-bd*.3]]);
+  const farHind=smoothPath([[hX+bd*.05,backY+bd*.45],...legPts(hind.slice(1),bd*.1),[hX-bd*.3+bd*.1,bellyY-bd*.25]]);
+  const far=dk(.2);
+  // cauda
+  const tb=[C[0]+bd*.18,C[1]+bd*.1],tw=Math.max(4.5,bd*.12);
+  const T={
+    sickle:[[tb[0],tb[1]],[tb[0]+bd*.32,tb[1]-bd*.12],[tb[0]+bd*.42,tb[1]-bd*.45],[tb[0]+bd*.3,tb[1]-bd*.68]],
+    brushUp:[[tb[0],tb[1]],[tb[0]+bd*.38,tb[1]-bd*.1],[tb[0]+bd*.4,tb[1]-bd*.5],[tb[0]+bd*.12,tb[1]-bd*.68]],
+    curlTight:[[tb[0]-bd*.05,tb[1]-bd*.04],[tb[0]+bd*.25,tb[1]-bd*.28],[tb[0]+bd*.1,tb[1]-bd*.55],[tb[0]-bd*.14,tb[1]-bd*.42],[tb[0]-bd*.08,tb[1]-bd*.24]],
+    curlFluff:[[tb[0]-bd*.08,tb[1]-bd*.04],[tb[0]+bd*.18,tb[1]-bd*.38],[tb[0]-bd*.05,tb[1]-bd*.66],[tb[0]-bd*.4,tb[1]-bd*.38]],
+    otter:[[tb[0],tb[1]],[tb[0]+bd*.35,tb[1]+bd*.05],[tb[0]+bd*.5,tb[1]+bd*.3],[tb[0]+bd*.56,tb[1]+bd*.6]],
+    saber:[[tb[0],tb[1]],[tb[0]+bd*.32,tb[1]+bd*.08],[tb[0]+bd*.44,tb[1]+bd*.4],[tb[0]+bd*.42,tb[1]+bd*.72]],
+    brush:[[tb[0],tb[1]],[tb[0]+bd*.28,tb[1]+bd*.18],[tb[0]+bd*.34,tb[1]+bd*.55],[tb[0]+bd*.26,tb[1]+bd*.92]],
+    plume:[[tb[0],tb[1]],[tb[0]+bd*.42,tb[1]+bd*.02],[tb[0]+bd*.62,tb[1]+bd*.28],[tb[0]+bd*.66,tb[1]+bd*.58]],
+    plumeUp:[[tb[0]-bd*.06,tb[1]-bd*.03],[tb[0]+bd*.16,tb[1]-bd*.42],[tb[0]-bd*.08,tb[1]-bd*.7],[tb[0]-bd*.46,tb[1]-bd*.5]],
+    whip:[[tb[0],tb[1]],[tb[0]+bd*.32,tb[1]+bd*.12],[tb[0]+bd*.46,tb[1]+bd*.42],[tb[0]+bd*.5,tb[1]+bd*.72]],
+    stub:[[tb[0],tb[1]],[tb[0]+bd*.12,tb[1]+bd*.02],[tb[0]+bd*.16,tb[1]+bd*.1]],
+    pom:[[tb[0],tb[1]],[tb[0]+bd*.18,tb[1]-bd*.15],[tb[0]+bd*.26,tb[1]-bd*.36],[tb[0]+bd*.28,tb[1]-bd*.5]]
+  }[S.tail]||[[tb[0],tb[1]],[tb[0]+bd*.2,tb[1]]];
+  const fluffTail=['plume','plumeUp','curlFluff'].includes(S.tail)||(['brush','brushUp'].includes(S.tail)&&S.coat!=='short');
+  const tW=S.tail==='otter'?tw*1.55:fluffTail?tw*2.5:S.tail==='whip'?tw*.8:tw;
+  const tailD=smoothPath(T,false);
+  let tail=`<path d="${tailD}" stroke="${coat}" stroke-width="${tW}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  if(fluffTail)tail+=`<path d="${tailD}" stroke="${coat}" stroke-width="${tW*1.25}" fill="none" stroke-linecap="round" stroke-dasharray="${tW*.6} ${tW*.9}" opacity=".9"/>`;
+  const tEnd=T[T.length-1];
+  if(S.tail==='pom')tail+=`<circle cx="${tEnd[0]}" cy="${tEnd[1]}" r="${tw*1.7}" fill="${coat}"/>`;
+  if(['tri','husky','blaze','merle'].includes(S.pat)&&S.tail!=='stub'&&S.tail!=='curlTight')tail+=`<circle cx="${tEnd[0]}" cy="${tEnd[1]}" r="${tW*.5}" fill="${white}"/>`;
+  if(S.pat==='saddle'||S.pat==='heeler')tail+=`<path d="${smoothPath(T.slice(-2),false)}" stroke="${black}" stroke-width="${tW}" fill="none" stroke-linecap="round" opacity="${S.pat==='heeler'?.5:1}"/>`;
+  if(S.pat==='tri')tail=`<path d="${tailD}" stroke="${coat}" stroke-width="${tW}" fill="none" stroke-linecap="round"/><circle cx="${tEnd[0]}" cy="${tEnd[1]}" r="${tW*.55}" fill="${white}"/>`;
+
+  // ---- marcações (recortadas pela silhueta) ----
+  const cid='dc'+Math.random().toString(36).slice(2,7);
+  const P2=(pts,c,closed=true)=>`<path d="${smoothPath(pts,closed)}" fill="${c}"/>`;
+  const low=(y,c)=>`<rect x="${X0-bd}" y="${y}" width="${bl+bd*2}" height="${G-y+4}" fill="${c}"/>`;
+  const bib=c=>P2([[X0+bd*.05,backY-bd*.1],[X0+bd*.32,backY+bd*.45],[X0+bd*.7,bellyY+bd*.1,1],[X0-bd*.3,bellyY+bd*.1,1],[X0-bd*.3,backY-bd*.1]],c);
+  const underside=c=>P2([[X0+bd*.5,bellyY-bd*.22],[X0+bl*.45,bellyY-bd*(tuck*.35+.12)],[X0+bl-bd*.75,bellyY-bd*(tuck+.08)],[X0+bl,bellyY+bd*.4,1],[X0,bellyY+bd*.4,1]],c);
+  let marks='',legMarks='';
+  const pat=S.pat;
+  if(pat==='saddle')marks+=P2([[W[0]-bd*.05,backY-bd*.2],[W[0]+bd*.15,backY+bd*.45],[X0+bl*.55,backY+bd*.58],[C[0]+bd*.25,backY+bd*.35],[R[0]+bd*.2,backY-bd*.25,1]],black);
+  if(pat==='tri')marks+=P2([[W[0]+bd*.05,backY-bd*.2],[W[0]+bd*.12,backY+bd*.5],[X0+bl*.55,backY+bd*.62],[C[0]+bd*.1,backY+bd*.55],[R[0]+bd*.2,backY-bd*.25,1]],black)+bib(white)+underside(white)+low(G-leg*.55,white);
+  if(pat==='tan'||pat==='yorkie')marks+=low(G-leg*(pat==='yorkie'?.5:.32),tan)+P2([[X0-bd*.08,backY+bd*.38],[X0+bd*.25,backY+bd*.55],[X0+bd*.1,backY+bd*.72]],tan);
+  if(pat==='yorkie')marks+=P2([[W[0]-bd*.2,backY-bd*.5],[W[0]+bd*.1,backY+bd*.2],[X0-bd*.3,backY+bd*.2]],tan);
+  if(['blaze','husky','jack','parti','foxp','merle'].includes(pat))marks+=bib(white);
+  if(pat==='blaze')marks+=low(G-leg*.3,white);
+  if(['jack','foxp','parti'].includes(pat))marks+=underside(white)+low(G-leg*.7,white);
+  if(pat==='husky')marks+=underside(white)+low(G-leg*.62,white);
+  if(pat==='urajiro')marks+=bib(lt(.38))+underside(lt(.38))+low(G-leg*.55,lt(.38));
+  if(pat==='foxp')marks+=`<ellipse cx="${X0+bl*.7}" cy="${backY+bd*.32}" rx="${bd*.36}" ry="${bd*.3}" fill="${black}"/>`;
+  if(pat==='jack')marks+=`<ellipse cx="${X0+bl*.78}" cy="${backY+bd*.25}" rx="${bd*.28}" ry="${bd*.22}" fill="${tan}"/>`;
+  if(pat==='merle'||pat==='heeler'){let r=11;const rnd=()=>(r=(r*9301+49297)%233280)/233280;
+    for(let i=0;i<(pat==='merle'?16:60);i++){const u=rnd(),v=rnd(),z=rnd();
+      marks+=`<ellipse cx="${(X0-bd*.2+u*(bl+bd*.4)).toFixed(1)}" cy="${(backY-bd*.3+v*bd*1.2).toFixed(1)}" rx="${(bd*(pat==='merle'?.08+z*.12:.018+z*.03)).toFixed(1)}" ry="${(bd*(pat==='merle'?.06+z*.08:.015+z*.025)).toFixed(1)}" fill="${pat==='merle'?black:'#2e3a45'}" opacity="${pat==='merle'?.9:.55}"/>`;}
+    if(pat==='merle')marks+=low(G-leg*.45,tan)+low(G-leg*.2,white)+underside(white);
+    if(pat==='heeler')marks+=low(G-leg*.4,tan);
+  }
+  // ---- volume da pelagem por cima da silhueta ----
+  let fur='';
+  if(S.coat==='long'||S.coat==='silky'){ // pelo longo caindo, com pontas onduladas e patas aparecendo
+    const hemF=G-leg*.32, hemB=G-leg*.12, x1=X0+bd*.05, x2=R[0]+bd*.05, n=8, st=(x2-x1)/n;
+    const pts=[[W[0]-bd*.05,backY-bd*.1],[X0-bd*.12,backY+bd*.25],[X0-bd*.1,hemF-leg*.25],[x1-bd*.05,hemF+leg*.05]];
+    for(let i=1;i<n;i++){const y=hemF+(hemB-hemF)*(i/n)+(i%2?leg*.06:-leg*.02);pts.push([x1+st*i,y,i%2?0:0]);}
+    pts.push([x2+bd*.05,hemB-leg*.05],[R[0]+bd*.16,R[1]+bd*.25],[R[0]+bd*.04,R[1]-bd*.12],[C[0]-bd*.1,backY-bd*.1],[X0+bl*.5,backY-bd*.1]);
+    fur+=P2(pts,coat);
+    // mecha caindo do alto da cabeça
+    const strand=shade(coat,.1);let sd='';
+    for(let i=0;i<6;i++){const x=X0+bd*.15+i*(bl-bd*.1)/6;sd+=`M${x} ${backY+bd*.25} C${x+bd*.08} ${backY+bd*.7} ${x-bd*.06} ${hemB-leg*.5} ${x+bd*.04} ${hemB-leg*.1} `;}
+    fur+=`<path d="${sd}" stroke="${strand}" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".7"/>`;
+  }
+  if(S.coat==='curly')fur+=`<circle cx="${R[0]-bd*.18}" cy="${R[1]+bd*.05}" r="${bd*.42}" fill="${coat}"/><circle cx="${X0+bd*.12}" cy="${backY+bd*.38}" r="${bd*.45}" fill="${coat}"/><circle cx="${fX+w*.4}" cy="${G-leg*.12}" r="${w*.95}" fill="${coat}"/><circle cx="${hX}" cy="${G-leg*.12}" r="${w*.95}" fill="${coat}"/>`;
+  if(S.coat==='feather'){ // franjas: atrás das pernas, peito e barriga
+    fur+=P2([[fX+w*.9,bellyY+leg*.0],[fX+w*1.55,bellyY+leg*.3],[fX+w*.95,G-leg*.4,1]],coat);
+    fur+=P2([[hX+w*.4,bellyY-bd*.02],[hX+w*1.35,bellyY+leg*.2],[hX+w*.65,G-leg*.36,1]],coat);
+    fur+=P2([[X0+bd*.7,bellyY-bd*.05],[X0+bl*.45,bellyY+bd*.08],[X0+bl-bd*.75,bellyY-bd*tuck+bd*.04],[X0+bl-bd*.8,bellyY-bd*tuck-bd*.08,1],[X0+bd*.6,bellyY-bd*.12,1]],coat);
+  }
+  if(S.coat==='wire')fur+=P2([[fX-w*.4,bellyY-bd*.05],[fX+w*1.5,bellyY-bd*.05],[fX+w*1.4,G-leg*.12,1],[fX-w*.5,G-leg*.12,1]],coat)+P2([[X0+bd*.6,bellyY-bd*.1],[X0+bl*.5,bellyY+bd*.06],[X0+bl-bd*.8,bellyY-bd*tuck+bd*.02],[X0+bl-bd*.8,bellyY-bd*tuck-bd*.1,1]],coat);
+
+  // ---- rosto ----
+  const ex=Hc[0]-hd*.38, ey=Hc[1]-hd*.2, er=Math.max(2.2,hd*(S.skull==='apple'||S.muz==='flat'?.135:.105));
+  let face='';
+  const muzzleArea=[[nose[0]-1,nose[1]-snH*.42,1],[Hc[0]-hd*.6,stopY+hd*.05],[Hc[0]-hd*.3,Hc[1]+hd*.25],[Hc[0]-hd*.38,Hc[1]+hd*.62],[nose[0]+snL*.5,nose[1]+lowJaw*.6],[nose[0]-1,nose[1]+snH*.3,1]];
+  const blaze=[[Hc[0]-hd*.66,stopY+hd*.02],[Hc[0]-hd*.32,Hc[1]-hd*.55],[Hc[0]-hd*.05,Hc[1]-hd*.95,1],[Hc[0]-hd*.18,Hc[1]-hd*.5],[Hc[0]-hd*.42,stopY+hd*.25]];
+  const muzC={tan:tan,yorkie:tan,tri:white,blaze:white,jack:white,foxp:white,husky:white,parti:white,merle:white,heeler:tan,urajiro:lt(.38),mask:black}[pat];
+  let faceM='';
+  if(muzC)faceM+=P2(muzzleArea,muzC);
+  if(['tri','blaze','parti','merle','husky'].includes(pat))faceM+=P2(blaze,white);
+  if(pat==='husky')faceM+=P2([[Hc[0]-hd*.6,stopY+hd*.1],[Hc[0]-hd*.15,Hc[1]-hd*.05],[Hc[0]+hd*.3,Hc[1]+hd*.45],[Hc[0]+hd*.1,Hc[1]+hd*.95,1],[Hc[0]-hd*.5,Hc[1]+hd*.6]],white);
+  if(pat==='urajiro')faceM+=P2([[Hc[0]-hd*.4,Hc[1]+hd*.05],[Hc[0]+hd*.15,Hc[1]+hd*.3],[Hc[0]+hd*.3,Hc[1]+hd*.85,1],[Hc[0]-hd*.4,Hc[1]+hd*.7]],lt(.38));
+  if(pat==='jack'||pat==='foxp'||pat==='parti'){const pc=pat==='foxp'?black:pat==='parti'?(b[8]&&b[8]!=='#f4efe6'?b[8]:'#8a6a4c'):tan;
+    faceM+=P2([[Hc[0]-hd*.25,Hc[1]-hd*.98],[Hc[0]+hd*.7,Hc[1]-hd*.7],[Hc[0]+hd*.8,Hc[1]+hd*.3],[Hc[0]+hd*.1,Hc[1]+hd*.4],[Hc[0]-hd*.3,Hc[1]+hd*.05],[Hc[0]-hd*.2,Hc[1]-hd*.45]],pc);
+    if(pat==='foxp')faceM+=`<ellipse cx="${ex+er*.4}" cy="${ey+er*1.8}" rx="${hd*.16}" ry="${hd*.11}" fill="${tan}"/>`;}
+  if(pat==='heeler')faceM+=`<ellipse cx="${ex+er*.6}" cy="${ey+er*.2}" rx="${hd*.3}" ry="${hd*.25}" fill="#2e3a45" opacity=".75"/>`;
+  if(pat==='tan'||pat==='yorkie'||pat==='heeler')faceM+=`<ellipse cx="${ex-er*.2}" cy="${ey-er*1.9}" rx="${hd*.11}" ry="${hd*.075}" fill="${tan}"/>`;
+  if(pat==='saddle')faceM+=P2([[nose[0]-1,nose[1]-snH*.42,1],[Hc[0]-hd*.5,stopY],[Hc[0]-hd*.25,Hc[1]+hd*.4],[nose[0]+snL*.4,nose[1]+lowJaw*.6],[nose[0]-1,nose[1]+snH*.3,1]],black);
+  face+=`<g clip-path="url(#${cid})">${faceM}</g>`;
+  // rugas de cara achatada / shar-pei
+  const ln=c=>shade(c,.38);
+  if(S.muz==='flat')face+=`<path d="M${Hc[0]-hd*.62} ${stopY+hd*.08} q${-hd*.18} ${hd*.22} ${-hd*.02} ${hd*.45}" stroke="${ln(muzC||coat)}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+  if(b[0]==='sharpei')face+=`<path d="M${Hc[0]-hd*.25} ${Hc[1]-hd*.55} q${hd*.3} ${-hd*.14} ${hd*.62} 0 M${Hc[0]-hd*.1} ${Hc[1]+hd*.55} q${hd*.3} ${hd*.16} ${hd*.62} 0 M${X0} ${backY+bd*.15} q${bd*.15} ${bd*.12} ${bd*.32} 0" stroke="${dk(.3)}" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+  // barba e sobrancelha (pelo duro), franja de cara (pelo longo)
+  if(S.coat==='wire')face+=P2([[nose[0]+1,nose[1]+snH*.1],[nose[0]+snL*.2,nose[1]+snH*1.5],[Hc[0]-hd*.3,Hc[1]+hd*1.0,1],[Hc[0]-hd*.4,Hc[1]+hd*.4]],lt(.32))+`<path d="M${ex-er*1.8} ${ey-er*.6} q${er*1.8} ${-er*2.2} ${er*3.6} ${-er*.6}" stroke="${lt(.32)}" stroke-width="${er*1.1}" fill="none" stroke-linecap="round"/>`;
+  if((S.coat==='long'||S.coat==='silky')&&S.muz!=='snipy')face+=P2([[nose[0]+1,nose[1]+snH*.15],[nose[0]+snL*.1,nose[1]+snH*1.4],[Hc[0]-hd*.2,Hc[1]+hd*1.05,1],[Hc[0]-hd*.3,Hc[1]+hd*.4]],muzC&&muzC!==black?muzC:coat);
+  if(S.coat==='curly')face+=`<circle cx="${Hc[0]+hd*.05}" cy="${Hc[1]-hd*.8}" r="${hd*.45}" fill="${coat}"/>`;
+  // nariz, boca, olho
+  const nr=Math.max(2.4,snH*.25);
+  face+=`<path d="M${nose[0]-1.5} ${nose[1]-snH*.42} c${-nr*.35} ${nr*.35} ${-nr*.2} ${nr*1.15} ${nr*.35} ${nr*1.2} c${nr*.6} ${nr*.05} ${nr*1.05} ${-nr*.35} ${nr*.95} ${-nr*.8} c${-nr*.1} ${-nr*.4} ${-nr*.75} ${-nr*.55} ${-nr*1.3} ${-nr*.4}Z" fill="#1b1918"/>`;
+  if(S.muz!=='flat')face+=`<path d="M${nose[0]+nr*.6} ${nose[1]+snH*.28} q${snL*.3} ${snH*.14} ${snL*.62} ${-snH*.02}" stroke="${ln(muzC||coat)}" stroke-width="1.2" fill="none" stroke-linecap="round"/>`;
+  face+=`<ellipse cx="${ex}" cy="${ey}" rx="${er}" ry="${er*.9}" fill="#1b1918"/><circle cx="${ex-er*.32}" cy="${ey-er*.32}" r="${Math.max(.6,er*.3)}" fill="#fff" opacity=".9"/>`;
+  // ---- orelhas ----
+  const earC=pat==='tri'?tan:pat==='mask'?black:pat==='yorkie'?tan:(pat==='parti'?(b[8]&&b[8]!=='#f4efe6'?b[8]:'#8a6a4c'):dk(.1));
+  const inner=pat==='mask'?shade(black,-.25):shade(earC,-.28);
+  const eb=[Hc[0]+hd*.2,Hc[1]-hd*.65];
+  const prick=(h,wd,tilt=0)=>P2([[eb[0]-hd*.22,eb[1]+hd*.18],[eb[0]-hd*.12+tilt,eb[1]-h*.55],[eb[0]+hd*.08+tilt,eb[1]-h,1],[eb[0]+wd*.75+tilt*.3,eb[1]-h*.45],[eb[0]+wd,eb[1]+hd*.25]],earC)+P2([[eb[0]-hd*.06,eb[1]+hd*.12],[eb[0]+hd*.02+tilt,eb[1]-h*.5],[eb[0]+hd*.1+tilt,eb[1]-h*.78,1],[eb[0]+wd*.55+tilt*.3,eb[1]-h*.35],[eb[0]+wd*.72,eb[1]+hd*.15]],inner);
+  const drop=(len,wd,wavy)=>{const t=[eb[0]-hd*.1,eb[1]+hd*.05],bt=t[1]+len;
+    return P2([[t[0],t[1]],[t[0]+wd*.85,t[1]+len*.1],[t[0]+wd*1.05,t[1]+len*.6],...(wavy?[[t[0]+wd*.8,bt,1],[t[0]+wd*.5,bt-len*.06],[t[0]+wd*.25,bt+len*.02,1]]:[[t[0]+wd*.55,bt]]),[t[0]-wd*.05,t[1]+len*.6],[t[0]-wd*.1,t[1]+len*.15]],earC)};
+  let ears='';
+  ({prick:()=>ears=prick(hd*.95,hd*.52,hd*.05),prickL:()=>ears=prick(hd*1.3,hd*.66,hd*.12),tiny:()=>ears=prick(hd*.5,hd*.36),bat:()=>ears=P2([[eb[0]-hd*.25,eb[1]+hd*.2],[eb[0]-hd*.3,eb[1]-hd*.6],[eb[0]+hd*.1,eb[1]-hd*1.05],[eb[0]+hd*.55,eb[1]-hd*.75],[eb[0]+hd*.62,eb[1]+hd*.22]],earC)+P2([[eb[0]-hd*.1,eb[1]+hd*.12],[eb[0]-hd*.13,eb[1]-hd*.5],[eb[0]+hd*.12,eb[1]-hd*.82],[eb[0]+hd*.42,eb[1]-hd*.6],[eb[0]+hd*.45,eb[1]+hd*.12]],inner),
+    semi:()=>ears=P2([[eb[0]-hd*.2,eb[1]+hd*.18],[eb[0]-hd*.08,eb[1]-hd*.45],[eb[0]+hd*.15,eb[1]-hd*.62,1],[eb[0]+hd*.48,eb[1]-hd*.35],[eb[0]+hd*.6,eb[1]+hd*.25]],earC)+P2([[eb[0]+hd*.15,eb[1]-hd*.62,1],[eb[0]-hd*.18,eb[1]-hd*.42],[eb[0]-hd*.25,eb[1]-hd*.12,1],[eb[0]+hd*.02,eb[1]-hd*.3]],shade(earC,.22)),
+    button:()=>ears=P2([[eb[0]-hd*.15,eb[1]+hd*.12],[eb[0]+hd*.05,eb[1]-hd*.32],[eb[0]+hd*.5,eb[1]-hd*.15,1],[eb[0]+hd*.2,eb[1]+hd*.1],[eb[0]-hd*.25,eb[1]+hd*.5,1]],earC),
+    rose:()=>ears=P2([[eb[0]-hd*.05,eb[1]+hd*.15],[eb[0]+hd*.15,eb[1]-hd*.22],[eb[0]+hd*.55,eb[1]-hd*.05,1],[eb[0]+hd*.3,eb[1]+hd*.2],[eb[0]+hd*.12,eb[1]+hd*.45,1]],earC),
+    drop:()=>ears=drop(hd*.82,hd*.55,false),long:()=>ears=drop(hd*(S.coat==='long'?1.65:1.3),hd*.62,S.coat==='long'),
+    feather:()=>ears=drop(hd*1.6,hd*.75,true),curly:()=>ears=drop(hd*1.25,hd*.72,true)}[S.ear]||(()=>0))();
+
+  // ---- montagem ----
+  const defs=`<defs><clipPath id="${cid}"><path d="${silD}"/></clipPath><clipPath id="${cid}f"><path d="${farFront}"/><path d="${farHind}"/></clipPath></defs>`;
+  const shadeBelly=`<g clip-path="url(#${cid})">${underside(dk(.08)).replace('fill=','opacity=".5" fill=')}</g>`;
+  const g=defs+`<path d="${farFront}" fill="${far}"/><path d="${farHind}" fill="${far}"/><g clip-path="url(#${cid}f)" opacity=".85">${marks}</g>`+tail+
+    `<path d="${silD}" fill="${coat}"/>`+`<g clip-path="url(#${cid})">${marks}</g>`+fur+face+ears;
+  const frontD=smoothPath([[fX+w*1.25,bellyY-bd*.3],...front,[fX-w*.2,bellyY-bd*.25]]);
+  const legs=`<defs><clipPath id="${cid}n"><path d="${frontD}"/></clipPath></defs><path d="${frontD}" fill="${coat}"/><g clip-path="url(#${cid}n)">${marks}</g>`;
+  return {g,legs,X0,backY,bellyY,bd,bl,hx:Hc[0],hy:Hc[1],hd,lw:w,fX,hX,
+    top:Math.min(backY,Hc[1]-hd*(['prick','prickL','bat'].includes(S.ear)?2.1:1.1)),left:nose[0]-6,right:Math.max(R[0]+bd*.75,tEnd[0]+tW)};
+}
+
+function dogSide(){
+  const b=breed(),P=BODY[b[3]],ear=b[4],tail=b[5];
+  const coat=st.coat,mk=st.mark;
+  const D=dogDraw(b,P,coat,mk);
+  const {X0,backY,bellyY,bd,bl,hx,hy,hd}=D,lw=D.lw;
+  let g=D.g;
   // pontos do peitoral
   const t=Math.max(5,(wearFita()/10)*SCENE_PER_CM/SCALE*1.1);
   const A=[X0+30,backY+1],B=[X0+2,backY+bd*.5],G=X0+56,Gt=[G,backY-1],Gb=[G+8,bellyY+1];
@@ -533,10 +733,7 @@ function dogSide(){
     pre+=strap(B,Gb,t*.9,t);
   }
   // pernas do lado de cá (cobrem a fita de baixo)
-  const legs=`<g${fur}><rect x="${X0+20}" y="${backY+bd*.5}" width="${lw}" height="${230-backY-bd*.5}" rx="${lw/2}" fill="${coat}"/>`+
-    `<path d="M${X0+bl-46} ${backY+bd*.6} Q${X0+bl-50} ${bellyY+10} ${X0+bl-40} ${230-lw*.4} L${X0+bl-40+lw} ${230-lw*.4} Q${X0+bl-28} ${bellyY} ${X0+bl-12} ${backY+bd*.6}Z" fill="${coat}"/></g>`;
-  const paws=(mk?`<rect x="${X0+20}" y="${230-lw*1.3}" width="${lw}" height="${lw*1.3}" rx="${lw/2}" fill="${mk}"/><rect x="${X0+bl-40}" y="${230-lw*1.3}" width="${lw}" height="${lw*1.3}" rx="${lw/2}" fill="${mk}"/>`:'')+
-    `<ellipse cx="${X0+20+lw/2+2}" cy="${229}" rx="${lw*.68}" ry="${lw*.3}" fill="${mk||dark}"/><ellipse cx="${X0+bl-40+lw/2+2}" cy="${229}" rx="${lw*.68}" ry="${lw*.3}" fill="${mk||dark}"/>`;
+  const legs=D.legs,paws='';
   if(st.wear==='coleira'){
     const C1=lerp([X0+36,backY+2],[hx+hd*.5,hy-hd*.55],.42),C2=lerp([X0+2,backY+bd*.42],[hx-hd*.25,hy+hd*.6],.42);
     post+=strap(C1,C2,t,t*.6)+buckle(lerp(C1,C2,.5),t,ang(C1,C2))+dring([C1[0]+t*.3,C1[1]-t*.4],t,ang(C1,C2)-180);
@@ -555,7 +752,7 @@ function dogSide(){
     post+=dring([G-4,backY-t*.35],t,0)+dring([F[0]-t*.3,F[1]],t,-90);
     attach=[F[0]-t*.9,F[1]];
   }
-  return {g:g+pre+legs+paws+post,attach,top:Math.min(backY,hy-hd*(ear==='up'||ear==='bat'?1.8:1)),left:X0-P.nk*.32-hd-P.sn,right:X0+bl+(tail==='plume'?60:40)};
+  return {g:g+pre+legs+paws+post,attach,top:D.top,left:D.left,right:D.right};
 }
 
 // ---------- pessoa (frente) ----------
