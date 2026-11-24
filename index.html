@@ -1102,6 +1102,25 @@ async function sendLead(e){
     :`<p class="lead-p"><strong>Modo de teste:</strong> nada foi enviado. Quando o provador estiver no domínio da Niko, estes dados vão para a planilha e o cupom segue por e-mail:</p><pre style="font-size:10.5px;white-space:pre-wrap;background:var(--olho);border-radius:10px;padding:10px;margin:8px 0 0">${JSON.stringify(d,null,1).replace(/</g,'&lt;')}</pre>`;
 }
 
+
+// ---------- Contador de uso (sem cookie; uma vez por visita) ----------
+const SESSAO=(()=>{try{let v=sessionStorage.getItem('nk_s');if(!v){v=Math.random().toString(36).slice(2,10);sessionStorage.setItem('nk_s',v);}return v;}catch(x){return Math.random().toString(36).slice(2,10);}})();
+const _evs={};
+function track(ev,detalhe,repetir){
+  if(location.hostname!=='provador.nikodogs.com.br'||!LEAD_ENDPOINT)return;
+  const k=ev+'|'+(repetir?detalhe:'');if(_evs[k])return;_evs[k]=1;
+  const b=breed(),body=JSON.stringify({evento:ev,sessao:SESSAO,origem:ORIGEM||'direto',raca:b?b[1]:'',detalhe:detalhe||'',aparelho:matchMedia('(max-width:760px)').matches?'celular':'desktop'});
+  try{if(navigator.sendBeacon&&navigator.sendBeacon(LEAD_ENDPOINT,new Blob([body],{type:'text/plain;charset=utf-8'})))return;}catch(x){}
+  try{fetch(LEAD_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body});}catch(x){}
+}
+function trackInit(){
+  track('visita',document.referrer?new URL(document.referrer).hostname:'');
+  document.addEventListener('click',e=>{const a=e.target.closest('a');if(!a)return;
+    if(a.id==='waFab'||a.id==='waEnd')return track('whatsapp',a.id==='waFab'?'flutuante':'final',true);
+    if(a.href&&a.href.indexOf(STORE)===0){let c='';try{c=new URL(a.href).searchParams.get('utm_content')||'';}catch(x){}track('loja',c,true);}
+  });
+  const lf=$('leadForm');if(lf)lf.addEventListener('focusin',()=>track('cadastro_aberto'),{once:true});
+}
 // ---------- WhatsApp ----------
 const WA='5519999510421';
 function waMsg(){
@@ -1117,7 +1136,7 @@ function waInit(){
   ['waFab','waEnd'].forEach(id=>$(id).addEventListener('click',()=>waUpdate()));
   const fab=$('waFab');let seen=false,tk=false;
   const vis=(el,a,b)=>{const r=el.getBoundingClientRect(),h=innerHeight;return r.height>0&&r.bottom>h*a&&r.top<h*b;};
-  const upd=()=>{tk=false;const rc=$('recs').getBoundingClientRect();if(rc.height>0&&rc.top<innerHeight*.8)seen=true;
+  const upd=()=>{tk=false;const rc=$('recs').getBoundingClientRect();if(rc.height>0&&rc.top<innerHeight*.8){seen=true;track('recomendacao',(wearRec()||{}).size||'');}
     fab.classList.toggle('on',seen&&!vis($('lead'),0,.92)&&!vis($('waEnd'),0,1));};
   addEventListener('scroll',()=>{if(!tk){tk=true;requestAnimationFrame(upd);}},{passive:true});
   addEventListener('resize',upd);document.addEventListener('toggle',upd,true);upd();
@@ -1208,7 +1227,7 @@ function init(){
   const end=()=>{drag=null};stage.addEventListener('pointerup',end);stage.addEventListener('pointercancel',end);
   render();
 }
-init();waInit();
+init();waInit();trackInit();
 </script>
 </body>
 </html>
