@@ -1098,7 +1098,7 @@ async function sendLead(e){
   if(LEAD_ENDPOINT&&!ok){$('lfBtn').disabled=false;$('lfBtn').textContent='Quero meu cupom';return err.textContent='Não conseguimos enviar agora. Tente de novo em instantes.';}
   $('leadForm').style.display='none';
   $('leadOk').style.display='block';
-  $('leadOk').innerHTML=LEAD_ENDPOINT?`<p class="lead-p"><strong>Pronto, ${d.nome}!</strong> Mandamos ${d.extras.length?'as fichas dos seus cachorros':'a ficha do '+d.cachorro} e o seu cupom para <strong>${d.email}</strong>. Se não aparecer em alguns minutos, olhe a caixa de spam ou promoções.</p>`
+  $('leadOk').innerHTML=LEAD_ENDPOINT?`<p class="lead-p"><strong>Pronto, ${d.nome}!</strong> Mandamos ${d.extras.length?'as fichas dos seus cachorros':'a ficha de '+d.cachorro} e o seu cupom para <strong>${d.email}</strong>. Se não aparecer em alguns minutos, olhe a caixa de spam ou promoções.</p>`
     :`<p class="lead-p"><strong>Modo de teste:</strong> nada foi enviado. Quando o provador estiver no domínio da Niko, estes dados vão para a planilha e o cupom segue por e-mail:</p><pre style="font-size:10.5px;white-space:pre-wrap;background:var(--olho);border-radius:10px;padding:10px;margin:8px 0 0">${JSON.stringify(d,null,1).replace(/</g,'&lt;')}</pre>`;
 }
 
