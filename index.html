@@ -1298,6 +1298,7 @@ init();waInit();trackInit();
   document.addEventListener('submit',function(){submitted=true;},true);
   document.addEventListener('click',function(e){var b=e.target.closest('button');if(b&&/quero meu cupom/i.test(b.textContent))submitted=true;},true);
   function target(){
+    var lh=document.querySelector('.lead-h');if(lh)return lh;
     var hs=document.querySelectorAll('h1,h2,h3,h4');
     for(var i=0;i<hs.length;i++){if(/ganhe 15%/i.test(hs[i].textContent))return hs[i];}
     return document.querySelector('form')||document.querySelector('input[type=email]');
