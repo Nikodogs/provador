@@ -1264,5 +1264,59 @@ function init(){
 }
 init();waInit();trackInit();
 </script>
+<!-- Provador Niko: aviso de saída (sem cupom, só leva de volta à ficha) -->
+<div id="nkpv-root" aria-hidden="true">
+  <div class="nkpv-backdrop" data-nkpv-close></div>
+  <div class="nkpv-card" role="dialog" aria-modal="true" aria-labelledby="nkpv-title">
+    <button type="button" class="nkpv-x" data-nkpv-close aria-label="Fechar">&times;</button>
+    <p class="nkpv-kicker">Falta pouco</p>
+    <h2 id="nkpv-title" class="nkpv-title">Volte e preencha a ficha</h2>
+    <p class="nkpv-text">Termine a ficha do seu cachorro e ganhe desconto na primeira compra. Leva menos de um minuto.</p>
+    <button type="button" class="nkpv-btn" data-nkpv-go>Voltar para a ficha</button>
+    <button type="button" class="nkpv-skip" data-nkpv-close>Agora não</button>
+  </div>
+</div>
+<style>
+#nkpv-root{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:16px}
+#nkpv-root.nkpv-open{display:flex}
+#nkpv-root .nkpv-backdrop{position:absolute;inset:0;background:rgba(42,42,42,.55)}
+#nkpv-root .nkpv-card{position:relative;width:100%;max-width:380px;background:#FFEDCD;color:#2A2A2A;border-radius:4px;padding:34px 26px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+#nkpv-root .nkpv-x{position:absolute;top:8px;right:10px;background:none;border:0;font-size:28px;line-height:1;color:#2A2A2A;cursor:pointer;padding:6px}
+#nkpv-root .nkpv-kicker{margin:0 0 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+#nkpv-root .nkpv-title{margin:0 0 12px;font-family:'Rubik Mono One',sans-serif;font-weight:400;font-size:22px;line-height:1.15;color:#804B3C}
+#nkpv-root .nkpv-text{margin:0 0 18px;font-size:14px;line-height:1.5}
+#nkpv-root .nkpv-btn{width:100%;padding:14px;border:0;border-radius:2px;background:#2A2A2A;color:#F1F78C;font:inherit;font-weight:700;cursor:pointer}
+#nkpv-root .nkpv-skip{margin-top:10px;background:none;border:0;color:#5a5348;font:inherit;font-size:12px;text-decoration:underline;cursor:pointer}
+@media (max-width:480px){#nkpv-root{align-items:flex-end;padding:0}#nkpv-root .nkpv-card{max-width:none;border-radius:12px 12px 0 0}}
+</style>
+<script>
+(function(){
+  var root=document.getElementById('nkpv-root'),KEY='nkpv_v1';
+  if(!root)return;
+  try{if(sessionStorage.getItem(KEY))return;}catch(e){}
+  var shown=false,submitted=false;
+  document.addEventListener('submit',function(){submitted=true;},true);
+  document.addEventListener('click',function(e){var b=e.target.closest('button');if(b&&/quero meu cupom/i.test(b.textContent))submitted=true;},true);
+  function target(){
+    var hs=document.querySelectorAll('h1,h2,h3,h4');
+    for(var i=0;i<hs.length;i++){if(/ganhe 15%/i.test(hs[i].textContent))return hs[i];}
+    return document.querySelector('form')||document.querySelector('input[type=email]');
+  }
+  function open(){if(shown||submitted)return;shown=true;try{sessionStorage.setItem(KEY,'1');}catch(e){}root.classList.add('nkpv-open');root.setAttribute('aria-hidden','false');}
+  function close(){root.classList.remove('nkpv-open');root.setAttribute('aria-hidden','true');}
+  root.addEventListener('click',function(e){
+    if(e.target.closest('[data-nkpv-close]'))close();
+    if(e.target.closest('[data-nkpv-go]')){close();var t=target();if(t)t.scrollIntoView({behavior:"smooth",block:"start"});}
+  });
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  if(window.matchMedia('(pointer:fine)').matches){
+    setTimeout(function(){document.addEventListener('mouseout',function(e){if(!e.relatedTarget&&e.clientY<=0)open();});},10000);
+  }else{
+    var t0=Date.now(),maxS=0;
+    window.addEventListener('scroll',function(){var y=window.scrollY;if(y>maxS)maxS=y;if(Date.now()-t0>20000&&maxS>600&&maxS-y>500)open();},{passive:true});
+    document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&Date.now()-t0>15000)open();});
+  }
+})();
+</script>
 </body>
 </html>
