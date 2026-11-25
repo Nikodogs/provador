@@ -166,6 +166,12 @@ h2{font-size:15px}
 .wa-end{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin:14px 0 0;padding:13px 16px;border-radius:999px;background:#25D366;color:#fff;font:inherit;font-size:14px;text-decoration:none;font-weight:600}
 .wa-end svg{width:20px;height:20px;fill:#fff}
 @media(min-width:1000px){.wa-fab{right:24px;bottom:24px}}
+
+.lead .lead-need{display:none;color:#FFEDCD;font-size:14px;margin:6px 0 0}
+.lead .lead-need .link{color:#F1F78C;text-decoration:underline;background:none;border:0;font:inherit;cursor:pointer;padding:0}
+.lead.needbreed .lead-need{display:block}.lead.needbreed form{display:none}
+.rec.needrec p{margin:6px 0 12px}
+select#breed.need{outline:3px solid #F1F78C;outline-offset:2px}
 </style>
 </head>
 <body>
@@ -216,7 +222,7 @@ h2{font-size:15px}
 
   <!-- 2. CACHORRO -->
   <section class="card" id="dog">
-    <details class="sec"><summary><h2><span class="n">2</span>O seu cachorro</h2><span class="sum" id="sumDog"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
+    <details class="sec" open><summary><h2><span class="n">2</span>O seu cachorro</h2><span class="sum" id="sumDog"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
     <label class="f" for="breed">Raça ou porte</label>
     <select id="breed"></select>
     <label class="f" for="kg">Peso: <strong id="kgOut"></strong></label>
@@ -300,11 +306,23 @@ h2{font-size:15px}
     <div class="lead" id="lead">
       <div class="lead-h">Ganhe 15% na primeira compra</div>
       <p class="lead-p">Receba por e-mail a ficha do seu cachorro (ou dos seus cachorros), com os tamanhos certos de cada produto, e um cupom de 15% para a primeira compra no site.</p>
+      <p class="lead-need">Escolha a raça do seu cachorro na parte 2 para receber a ficha com os tamanhos e o cupom. <button type="button" class="link" onclick="goBreed()">Escolher a raça</button></p>
       <form id="leadForm" novalidate>
         <div class="row">
           <div><label class="f" for="lfNome">Seu nome</label><input type="text" id="lfNome" autocomplete="given-name" required></div>
           <div><label class="f" for="lfDog">Nome do cachorro</label><input type="text" id="lfDog" required></div>
         </div>
+        <div class="row">
+          <div><label class="f" for="lfKg">Peso do cachorro (kg)</label><input type="number" id="lfKg" inputmode="decimal" min="1" max="80" step="0.5" required placeholder="ex.: 12"></div>
+          <div><label class="f">Medidas</label><div class="chips" style="margin-top:4px">
+            <label class="ck" style="margin:0"><input type="radio" name="lfMed" value="fita" required><span>Medi com fita</span></label>
+            <label class="ck" style="margin:0"><input type="radio" name="lfMed" value="estimada"><span>Ainda não medi</span></label></div></div>
+        </div>
+        <div class="row" id="lfMedidas" style="display:none">
+          <div><label class="f" for="lfNeck">Pescoço (cm)</label><input type="number" id="lfNeck" inputmode="decimal" min="10" max="90"></div>
+          <div><label class="f" for="lfChest">Tórax (cm)</label><input type="number" id="lfChest" inputmode="decimal" min="15" max="130"></div>
+        </div>
+        <p class="hint" id="lfMedHint" style="display:none;margin:6px 0 0;font-size:11.5px">Sem medir, o tamanho sai estimado pela raça e pelo peso. Para acertar de primeira, meça o pescoço e o tórax (logo atrás das patas da frente) com uma fita métrica.</p>
         <div id="lfExtras" style="display:none"><p class="hint" style="margin:12px 0 0;font-size:11.5px">Outros cachorros: o tamanho sai estimado pela raça e pelo peso.</p></div>
         <button type="button" class="addDog" id="lfAdd">+ adicionar outro cachorro</button>
         <label class="f" for="lfEmail">E-mail</label><input type="email" id="lfEmail" autocomplete="email" inputmode="email" required>
@@ -438,7 +456,7 @@ const TOPS=[['#efe9df','Off-white'],['#1e1e1e','Preto'],['#6b7350','Verde oliva'
 const BOTTOMS=[['#3b4a63','Jeans'],['#1e1e1e','Preto'],['#d8c7a6','Bege'],['#6b6a4b','Cáqui'],['#e9e4da','Off-white'],['#5f7d8c','Azul petróleo']];
 const SHOES=[['#f4f1ea','Branco'],['#1e1e1e','Preto'],['#d6c3a0','Bege'],['#8a5a3c','Marrom'],['#c0392b','Vermelho']];
 
-const st={breed:'beagle',kg:12,coat:'#b5733a',mark:'#f4efe6',neck:null,chest:null,front:null,manual:false,
+const st={breed:'beagle',chosen:false,kg:12,coat:'#b5733a',mark:'#f4efe6',neck:null,chest:null,front:null,manual:false,
   wear:'peitoral',leash:'nohands',pat:'shore',human:'ela',view:'lado',scene:'praia',
   skin:'#c99268',hair:'#3b2a20',hstyle:'longo',top:'#efe9df',bottom:'#3b4a63',bstyle:'calca',shoe:'#f4f1ea',cap:false,model:null,lend:null,cpts:null,photo:null,pw:0,ph:0,pts:null,showPts:true};
 
@@ -986,7 +1004,7 @@ function modelGrid(){const g=(l,arr)=>`<div class="fam" style="margin-top:14px">
   return g('Escolha uma raça',MODELS);}
 function modelGridOld(){return `<div class="models">${MODELS.map(m=>`<button class="mdl" data-model="${m.k}" aria-pressed="${st.model===m.k}"><img src="${m.src}" alt="${m.n}"><span>${m.n}</span></button>`).join('')}</div>`}
 function loadModel(k){const m=MODELS.find(x=>x.k===k);st.model=k;st.photo=m.src;st.pw=m.w;st.ph=m.h;st.pts=JSON.parse(JSON.stringify(m.pts));st.cpts=JSON.parse(JSON.stringify(m.col));st.lend=null;
-  st.breed=m.breed;st.kg=m.kg;st.manual=false;$('breed').value=m.breed;$('kg').value=m.kg;st.coat=breed()[7];st.mark=breed()[8];coatDots();render();}
+  st.breed=m.breed;st.chosen=true;st.kg=m.kg;st.manual=false;$('breed').value=m.breed;$('kg').value=m.kg;st.coat=breed()[7];st.mark=breed()[8];coatDots();render();}
 const activeKey=()=>st.wear==='coleira'&&st.cpts?'cpts':'pts';
 const sternum=p=>[Math.round(p.B[0]+(p.Gb[0]-p.B[0])*.3),Math.round(p.B[1]+(p.Gb[1]-p.B[1])*.9)];
 function defaultPts(){const w=st.pw,h=st.ph;return {A:[w*.42,h*.36],B:[w*.32,h*.56],Gt:[w*.54,h*.38],Gb:[w*.57,h*.66]}}
@@ -1025,16 +1043,17 @@ function photoHint(){
 }
 function render(){
   const e=estimate();
-  if(!st.manual){st.neck=e.neck;st.chest=e.chest;st.front=e.front;$('neck').value=e.neck;$('chest').value=e.chest;$('front').value=e.front;}
+  if(!st.manual){st.neck=e.neck;st.chest=e.chest;st.front=e.front;const sh=st.chosen;$('neck').value=sh?e.neck:'';$('chest').value=sh?e.chest:'';$('front').value=sh?e.front:'';}
   $('estTag').textContent=st.manual?'(suas medidas)':'(estimativa)';
   $('estHint').innerHTML=st.manual?'Usando as medidas que você digitou. <button class="link" id="reset">Voltar à estimativa</button>':'Estimativa pela raça e pelo peso. Para acertar o tamanho, meça com fita métrica e ajuste aqui.';
   const r=$('reset');if(r)r.onclick=()=>{st.manual=false;render()};
+  $('lead').classList.toggle('needbreed',!st.chosen);
   $('frontWrap').style.display=st.wear==='bw'?'block':'none';
   $('personOpts').style.display=st.human==='none'?'none':'block';
   $('kgOut').textContent=st.kg.toLocaleString('pt-BR')+' kg';
   const lab=(list,v)=>(list.find(x=>x[0]===v)||[,''])[1];
   $('sumPerson').textContent=st.human==='none'?'Só o cachorro':`${st.human==='ela'?'Tutora':'Tutor'} · pele ${lab(SKINS,st.skin).toLowerCase()} · cabelo ${lab(HSTYLES,st.hstyle).toLowerCase()} · toque para personalizar`;
-  $('sumDog').textContent=`${breed()[1]} · ${st.kg.toLocaleString('pt-BR')} kg · pescoço ${st.neck} cm, tórax ${st.chest} cm`;
+  $('sumDog').textContent=!st.chosen?'Escolha a raça':`${breed()[1]} · ${st.kg.toLocaleString('pt-BR')} kg · pescoço ${st.neck} cm, tórax ${st.chest} cm`;
   $('sumStage').textContent=`${PATS.find(p=>p.k===st.pat).n} · ${st.wear==='none'?'sem peitoral':NAMES[st.wear]}${st.leash!=='none'?' + '+NAMES[st.leash]:''}`;
   $('sumResult').textContent='Tamanhos recomendados e links da loja';
   DEFS='';PID=0;
@@ -1087,6 +1106,16 @@ function leadPayload(){
 async function sendLead(e){
   e.preventDefault();const err=$('lfErr');err.textContent='';
   if($('lfHp').value)return;
+  if(!st.chosen){goBreed();return;}
+  const kg=parseFloat(String($('lfKg').value).replace(',','.'));
+  if(!(kg>=1&&kg<=80))return err.textContent='Informe o peso do cachorro em kg.';
+  const med=(document.querySelector('input[name=lfMed]:checked')||{}).value;
+  if(!med)return err.textContent='Diga se você mediu o cachorro com fita ou se ainda não mediu.';
+  if(med==='fita'){const n=parseFloat(String($('lfNeck').value).replace(',','.')),c=parseFloat(String($('lfChest').value).replace(',','.'));
+    if(!(n>=10&&n<=90&&c>=15&&c<=130))return err.textContent='Informe o pescoço e o tórax em centímetros.';
+    st.kg=kg;$('kg').value=kg;st.neck=n;st.chest=c;st.manual=true;}
+  else{st.kg=kg;$('kg').value=kg;st.manual=false;}
+  render();
   const d=leadPayload();
   if(!d.nome||!d.cachorro)return err.textContent='Preencha o seu nome e o do cachorro.';
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email))return err.textContent='Confira o e-mail.';
@@ -1109,7 +1138,7 @@ const _evs={};
 function track(ev,detalhe,repetir){
   if(location.hostname!=='provador.nikodogs.com.br'||!LEAD_ENDPOINT)return;
   const k=ev+'|'+(repetir?detalhe:'');if(_evs[k])return;_evs[k]=1;
-  const b=breed(),body=JSON.stringify({evento:ev,sessao:SESSAO,origem:ORIGEM||'direto',raca:b?b[1]:'',detalhe:detalhe||'',aparelho:matchMedia('(max-width:760px)').matches?'celular':'desktop'});
+  const b=st.chosen?breed():null,body=JSON.stringify({evento:ev,sessao:SESSAO,origem:ORIGEM||'direto',raca:b?b[1]:'',detalhe:detalhe||'',aparelho:matchMedia('(max-width:760px)').matches?'celular':'desktop'});
   try{if(navigator.sendBeacon&&navigator.sendBeacon(LEAD_ENDPOINT,new Blob([body],{type:'text/plain;charset=utf-8'})))return;}catch(x){}
   try{fetch(LEAD_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body});}catch(x){}
 }
@@ -1124,6 +1153,7 @@ function trackInit(){
 // ---------- WhatsApp ----------
 const WA='5519999510421';
 function waMsg(){
+  if(!st.chosen)return 'Oi! Estou usando o Provador Niko e fiquei com uma dúvida: ';
   const b=breed(),parts=[];
   parts.push(`${b?b[1]:'Meu cachorro'}, ${st.kg} kg`);
   if(st.neck)parts.push(`pescoço ${st.neck} cm`);if(st.chest)parts.push(`tórax ${st.chest} cm`);
@@ -1136,13 +1166,15 @@ function waInit(){
   ['waFab','waEnd'].forEach(id=>$(id).addEventListener('click',()=>waUpdate()));
   const fab=$('waFab');let seen=false,tk=false;
   const vis=(el,a,b)=>{const r=el.getBoundingClientRect(),h=innerHeight;return r.height>0&&r.bottom>h*a&&r.top<h*b;};
-  const upd=()=>{tk=false;const rc=$('recs').getBoundingClientRect();if(rc.height>0&&rc.top<innerHeight*.8){seen=true;track('recomendacao',(wearRec()||{}).size||'');}
+  const upd=()=>{tk=false;const rc=$('recs').getBoundingClientRect();if(rc.height>0&&rc.top<innerHeight*.8){seen=true;if(st.chosen)track('recomendacao',(wearRec()||{}).size||'');}
     fab.classList.toggle('on',seen&&!vis($('lead'),0,.92)&&!vis($('waEnd'),0,1));};
   addEventListener('scroll',()=>{if(!tk){tk=true;requestAnimationFrame(upd);}},{passive:true});
   addEventListener('resize',upd);document.addEventListener('toggle',upd,true);upd();
   waUpdate();
 }
+function goBreed(){const d=$('dog').querySelector('details');d.open=true;$('breed').classList.add('need');$('dog').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>$('breed').focus(),400);}
 function renderRecs(){
+  if(!st.chosen){$('recs').innerHTML='<div class="rec needrec"><div class="name">Qual é o seu cachorro?</div><p>Escolha a raça ou o porte na parte 2 para ver o tamanho certo de cada produto.</p><button type="button" class="buy" onclick="goBreed()">Escolher a raça</button></div>';if(typeof waUpdate==='function'&&$('waFab'))waUpdate();return;}
   let html='';const items=[];
   if(st.wear!=='none')items.push(st.wear);if(st.leash!=='none')items.push(st.leash);
   const wr=wearRec(),pSize=st.wear==='peitoral'&&wr&&wr.size?(wr.size==='PP'?'P':wr.size):null;
@@ -1189,9 +1221,9 @@ function init(){
   Object.entries(TILE_IMG).forEach(([k,d])=>{const Tl=TILES[k];
     lib.insertAdjacentHTML('beforeend',`<image id="img-${k}" href="${d}" width="${Tl.w}" height="${Tl.h}" preserveAspectRatio="none"/>`);
     lib.insertAdjacentHTML('beforeend',`<pattern id="sw-${k}" patternUnits="userSpaceOnUse" width="${Tl.w*14/Tl.h}" height="14"><use href="#img-${k}" transform="scale(${14/Tl.h})"/></pattern>`);});
-  $('breed').innerHTML=[[1,'Mais comuns no Brasil'],[2,'Outras raças'],[3,'Asiáticas e tipo spitz']].map(([g,n])=>`<optgroup label="${n}">${BREEDS.filter(b=>b[10]===g).map(b=>`<option value="${b[0]}">${b[1]}</option>`).join('')}</optgroup>`).join('');$('breed').value=st.breed;$('kg').value=st.kg;
-  $('breed').onchange=e=>{st.breed=e.target.value;const b=breed();if(b[2]){st.kg=b[2][0];$('kg').value=b[2][0];}st.coat=b[7];st.mark=b[8];st.manual=false;coatDots();render()};
-  $('kg').oninput=e=>{st.kg=+e.target.value;st.manual=false;render()};
+  $('breed').innerHTML='<option value="" selected disabled>Escolha a raça ou o porte</option>'+[[1,'Mais comuns no Brasil'],[2,'Outras raças'],[3,'Asiáticas e tipo spitz']].map(([g,n])=>`<optgroup label="${n}">${BREEDS.filter(b=>b[10]===g).map(b=>`<option value="${b[0]}">${b[1]}</option>`).join('')}</optgroup>`).join('');if(st.chosen)$('breed').value=st.breed;$('kg').value=st.kg;
+  $('breed').onchange=e=>{st.breed=e.target.value;st.chosen=true;$('breed').classList.remove('need');const b=breed();if(b[2]){st.kg=b[2][0];$('kg').value=b[2][0];}st.coat=b[7];st.mark=b[8];st.manual=false;coatDots();render()};
+  $('kg').oninput=e=>{st.kg=+e.target.value;st.manual=false;$('lfKg').value=st.kg;render()};
   coatDots();
   dots('cSkin',SKINS,'skin');dots('cHair',HAIRS,'hair');dots('cTop',TOPS,'top');dots('cBottom',BOTTOMS,'bottom');dots('cShoe',SHOES,'shoe');
   $('hairStyles').innerHTML=HSTYLES.map(h=>`<button class="chip sm" data-group="hstyle" data-val="${h[0]}" aria-pressed="${h[0]===st.hstyle}">${h[1]}</button>`).join('');
@@ -1203,7 +1235,10 @@ function init(){
   const mq=matchMedia('(min-width:920px)'),pb=$('previewBox'),home=$('stage').closest('.secbody'),homeNext=home.querySelector('.step');
   const placePreview=()=>{if(mq.matches){$('preview').hidden=false;$('preview').appendChild(pb);}else{$('preview').hidden=true;home.insertBefore(pb,homeNext);}};
   placePreview();mq.addEventListener('change',placePreview);
-  $('leadForm').addEventListener('submit',sendLead);$('lfAdd').addEventListener('click',addExtraDog);
+  $('leadForm').addEventListener('submit',sendLead);
+  document.querySelectorAll('input[name=lfMed]').forEach(r=>r.addEventListener('change',()=>{const f=r.value==='fita'&&r.checked;
+    $('lfMedidas').style.display=f?'grid':'none';$('lfMedHint').style.display=f?'none':'block';
+    if(f&&st.manual){$('lfNeck').value=st.neck;$('lfChest').value=st.chest;}}));$('lfAdd').addEventListener('click',addExtraDog);
   $('capBtn').onclick=()=>{st.cap=!st.cap;$('capBtn').setAttribute('aria-pressed',st.cap);render()};
   document.addEventListener('click',e=>{const b=e.target.closest('.chip[data-group]');if(!b)return;const grp=b.dataset.group;
     if(grp==='wear'&&st.wear===b.dataset.val){st.wear='none';b.setAttribute('aria-pressed','false');render();return;}
