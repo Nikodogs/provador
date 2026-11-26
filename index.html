@@ -489,6 +489,11 @@ function recommend(kind,given){
   const keys=kind==='coleira'?['neck']:kind==='bw'?['chest']:['neck','chest'];
   const sc=r=>keys.reduce((s,k)=>s+centerScore(vals[k],r[k]),0);
   const ok=tab.filter(r=>keys.every(k=>fitOne(vals[k],r[k]))).sort((a,b)=>sc(a)-sc(b));
+  if(kind==='coleira'){ // coleira sempre no tamanho do peitoral (kit completo), decisão do Octavio em 26/11/2026
+    const pr=recommend('peitoral',given||{neck:st.neck,chest:st.chest});const ps=pr&&pr.size?(pr.size==='PP'?'P':pr.size):null;
+    const kitRow=ps&&tab.find(r=>r.s===ps);
+    if(kitRow)return {size:kitRow.s,row:kitRow,alt:[],frontNote:null};
+  }
   if(ok.length){const best=ok[0];let frontNote=null;
     if(kind==='bw'&&front&&!fitOne(front,best.front))frontNote=`A frente do peito (${front} cm) fica fora da regulagem do ${best.s} (${best.front[0]}–${best.front[1]} cm). Vale falar com a gente antes.`;
     return {size:best.s,row:best,alt:ok.slice(1).map(r=>r.s),frontNote};}
