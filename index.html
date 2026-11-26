@@ -172,6 +172,13 @@ h2{font-size:15px}
 .lead.needbreed .lead-need{display:block}.lead.needbreed form{display:none}
 .rec.needrec p{margin:6px 0 12px}
 select#breed.need{outline:3px solid #F1F78C;outline-offset:2px}
+
+.lead .ck-cupom{background:rgba(241,247,140,.12);border:1px solid rgba(241,247,140,.5);border-radius:12px;padding:10px 12px}
+.lead .mkt-warn{background:#FFEDCD;color:#2A2A2A;border-radius:12px;padding:12px 14px;margin:10px 0 0;font-size:13px}
+.lead .mkt-warn p{margin:0 0 10px;color:#2A2A2A}
+.lead .mkt-btns{display:flex;gap:8px;flex-wrap:wrap}
+.lead .mkt-btns button{font:inherit;font-size:13px;border-radius:999px;padding:9px 14px;cursor:pointer;border:1px solid #804B3C}
+.lead .mkt-yes{background:#804B3C;color:#FFFAF2}.lead .mkt-no{background:transparent;color:#804B3C}
 </style>
 </head>
 <body>
@@ -305,7 +312,7 @@ select#breed.need{outline:3px solid #F1F78C;outline-offset:2px}
     <div id="recs"></div>
     <div class="lead" id="lead">
       <div class="lead-h">Ganhe 15% na primeira compra</div>
-      <p class="lead-p">Receba por e-mail a ficha do seu cachorro (ou dos seus cachorros), com os tamanhos certos de cada produto, e um cupom de 15% para a primeira compra no site.</p>
+      <p class="lead-p">Receba por e-mail a ficha do seu cachorro (ou dos seus cachorros), com os tamanhos certos de cada produto. Inscrevendo-se nas novidades da Niko, você ganha também um cupom de 15% para a primeira compra no site.</p>
       <p class="lead-need">Escolha a raça do seu cachorro na parte 2 para receber a ficha com os tamanhos e o cupom. <button type="button" class="link" onclick="goBreed()">Escolher a raça</button></p>
       <form id="leadForm" novalidate>
         <div class="row">
@@ -329,7 +336,8 @@ select#breed.need{outline:3px solid #F1F78C;outline-offset:2px}
         <label class="f" for="lfZap">WhatsApp (opcional)</label><input type="tel" id="lfZap" autocomplete="tel" inputmode="tel" placeholder="(19) 99999-9999">
         <input type="text" id="lfHp" tabindex="-1" autocomplete="off" style="position:absolute;left:-5000px" aria-hidden="true">
         <label class="ck"><input type="checkbox" id="lfPriv"><span>Li e aceito a <a href="https://www.nikodogs.com.br/politica-de-privacidade/" target="_blank" rel="noopener">política de privacidade</a>.</span></label>
-        <label class="ck"><input type="checkbox" id="lfMkt"><span>Quero saber primeiro das estampas novas e das edições limitadas, antes de abrirem no site. Sem excesso de e-mail, e dá para sair quando quiser.</span></label>
+        <label class="ck ck-cupom"><input type="checkbox" id="lfMkt"><span><strong>Quero receber o cupom de 15% e as novidades da Niko</strong> (estampas novas e edições limitadas, antes de abrirem no site). Sem excesso de e-mail, e dá para sair quando quiser.</span></label>
+        <div class="mkt-warn" id="lfMktWarn" style="display:none"><p>Para receber o <strong>cupom de 15%</strong>, marque a caixa acima. Sem ela, mandamos só a ficha com os tamanhos.</p><div class="mkt-btns"><button type="button" class="mkt-yes" id="lfMktYes">Marcar e receber o cupom</button><button type="button" class="mkt-no" id="lfMktNo">Enviar só a ficha</button></div></div>
         <p class="warn" id="lfErr" style="font-size:12px;margin:8px 0 0"></p>
         <button type="submit" class="buy" id="lfBtn" style="width:100%;border:0;cursor:pointer;font:inherit;margin-top:14px">Quero meu cupom</button>
         <p class="hint" style="font-size:11px">O cupom chega no seu e-mail. Vale para a primeira compra, em pedidos acima de R$ 120, e não acumula com outras promoções.</p>
@@ -1107,6 +1115,7 @@ async function sendLead(e){
   e.preventDefault();const err=$('lfErr');err.textContent='';
   if($('lfHp').value)return;
   if(!st.chosen){goBreed();return;}
+  if(!$('lfMkt').checked&&!st.semCupomOk){$('lfMktWarn').style.display='block';$('lfMktWarn').scrollIntoView({behavior:'smooth',block:'center'});return;}
   const kg=parseFloat(String($('lfKg').value).replace(',','.'));
   if(!(kg>=1&&kg<=80))return err.textContent='Informe o peso do cachorro em kg.';
   const med=(document.querySelector('input[name=lfMed]:checked')||{}).value;
@@ -1127,7 +1136,7 @@ async function sendLead(e){
   if(LEAD_ENDPOINT&&!ok){$('lfBtn').disabled=false;$('lfBtn').textContent='Quero meu cupom';return err.textContent='Não conseguimos enviar agora. Tente de novo em instantes.';}
   $('leadForm').style.display='none';
   $('leadOk').style.display='block';
-  $('leadOk').innerHTML=LEAD_ENDPOINT?`<p class="lead-p"><strong>Pronto, ${d.nome}!</strong> Mandamos ${d.extras.length?'as fichas dos seus cachorros':'a ficha de '+d.cachorro} e o seu cupom para <strong>${d.email}</strong>. Se não aparecer em alguns minutos, olhe a caixa de spam ou promoções.</p>`
+  $('leadOk').innerHTML=LEAD_ENDPOINT?`<p class="lead-p"><strong>Pronto, ${d.nome}!</strong> Mandamos ${d.extras.length?'as fichas dos seus cachorros':'a ficha de '+d.cachorro}${d.marketing?' e o seu cupom':''} para <strong>${d.email}</strong>.${d.marketing?'':' Sem a inscrição nas novidades, a ficha vai sem o cupom.'} Se não aparecer em alguns minutos, olhe a caixa de spam ou promoções.</p>`
     :`<p class="lead-p"><strong>Modo de teste:</strong> nada foi enviado. Quando o provador estiver no domínio da Niko, estes dados vão para a planilha e o cupom segue por e-mail:</p><pre style="font-size:10.5px;white-space:pre-wrap;background:var(--olho);border-radius:10px;padding:10px;margin:8px 0 0">${JSON.stringify(d,null,1).replace(/</g,'&lt;')}</pre>`;
 }
 
@@ -1236,6 +1245,9 @@ function init(){
   const placePreview=()=>{if(mq.matches){$('preview').hidden=false;$('preview').appendChild(pb);}else{$('preview').hidden=true;home.insertBefore(pb,homeNext);}};
   placePreview();mq.addEventListener('change',placePreview);
   $('leadForm').addEventListener('submit',sendLead);
+  $('lfMkt').addEventListener('change',()=>{if($('lfMkt').checked)$('lfMktWarn').style.display='none';});
+  $('lfMktYes').addEventListener('click',()=>{$('lfMkt').checked=true;$('lfMktWarn').style.display='none';$('leadForm').requestSubmit();});
+  $('lfMktNo').addEventListener('click',()=>{st.semCupomOk=true;$('lfMktWarn').style.display='none';$('leadForm').requestSubmit();});
   document.querySelectorAll('input[name=lfMed]').forEach(r=>r.addEventListener('change',()=>{const f=r.value==='fita'&&r.checked;
     $('lfMedidas').style.display=f?'grid':'none';$('lfMedHint').style.display=f?'none':'block';
     if(f&&st.manual){$('lfNeck').value=st.neck;$('lfChest').value=st.chest;}}));$('lfAdd').addEventListener('click',addExtraDog);
