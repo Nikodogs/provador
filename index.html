@@ -1147,11 +1147,18 @@ async function sendLead(e){
 
 
 // ---------- Contador de uso (sem cookie; uma vez por visita) ----------
-const SESSAO=(()=>{try{let v=sessionStorage.getItem('nk_s');if(!v){v=Math.random().toString(36).slice(2,10);sessionStorage.setItem('nk_s',v);}return v;}catch(x){return Math.random().toString(36).slice(2,10);}})();
+// Identificador anônimo do navegador (sem dado pessoal), para contar pessoas e não recarregamentos.
+const SESSAO=(()=>{const n=()=>Math.random().toString(36).slice(2,10);try{let v=localStorage.getItem('nk_v');if(!v){v=n();localStorage.setItem('nk_v',v);}return v;}catch(x){try{let v=sessionStorage.getItem('nk_s');if(!v){v=n();sessionStorage.setItem('nk_s',v);}return v;}catch(y){return n();}}})();
 const _evs={};
+function _jaContou(ev){ // visita, recomendação e cadastro aberto: uma vez por pessoa por dia
+  const k='nk_e_'+ev+'_'+new Date().toISOString().slice(0,10);
+  try{if(localStorage.getItem(k))return true;localStorage.setItem(k,'1');}catch(x){}
+  return false;
+}
 function track(ev,detalhe,repetir){
   if(location.hostname!=='provador.nikodogs.com.br'||!LEAD_ENDPOINT)return;
   const k=ev+'|'+(repetir?detalhe:'');if(_evs[k])return;_evs[k]=1;
+  if(!repetir&&_jaContou(ev))return;
   const b=st.chosen?breed():null,body=JSON.stringify({evento:ev,sessao:SESSAO,origem:ORIGEM||'direto',raca:b?b[1]:'',detalhe:detalhe||'',aparelho:matchMedia('(max-width:760px)').matches?'celular':'desktop'});
   try{if(navigator.sendBeacon&&navigator.sendBeacon(LEAD_ENDPOINT,new Blob([body],{type:'text/plain;charset=utf-8'})))return;}catch(x){}
   try{fetch(LEAD_ENDPOINT,{method:'POST',mode:'no-cors',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body});}catch(x){}
