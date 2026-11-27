@@ -180,6 +180,20 @@ select#breed.need{outline:3px solid #F1F78C;outline-offset:2px}
 .lead .mkt-btns button{font:inherit;font-size:13px;border-radius:999px;padding:9px 14px;cursor:pointer;border:1px solid #804B3C}
 .lead .mkt-yes{background:#804B3C;color:#FFFAF2}.lead .mkt-no{background:transparent;color:#804B3C}
 
+/* ordem e prévia fixa no celular (27/11) */
+@media(max-width:919px){
+  #previewBox{position:sticky;top:0;z-index:6;background:#FFFAF2;padding:8px 0 10px;margin:0 -2px;box-shadow:0 10px 14px -12px rgba(42,42,42,.35)}
+  #previewBox .views{margin-bottom:6px}
+  #previewBox .stage{height:24vh;min-height:170px}
+  #previewBox .stage>svg{width:100%;height:100%}
+  #previewBox.nosticky{position:static;box-shadow:none}
+  #previewBox.nosticky .stage{height:auto;min-height:0}
+  #stageWrap,#stageWrap .card,#stageWrap .secbody,#stageWrap .step,main>*{min-width:0;max-width:100%}
+  .pats{max-width:100%;min-width:0;display:flex;overflow-x:auto;gap:8px;padding-bottom:6px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+  .pats .pat{flex:0 0 74px;scroll-snap-align:start}
+  .pats .fam{flex:0 0 auto;align-self:center;writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.7;padding:0 2px;border-left:1px dashed rgba(128,75,60,.5)}
+}
+
 /* ---------- Natal 2026 ---------- */
 @keyframes ntPisca{0%,100%{opacity:1}50%{opacity:.35}}
 body.natal .nt-b0{animation:ntPisca 1.8s ease-in-out infinite}
@@ -291,17 +305,6 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
         <div id="modelStrip"></div>
       </div>
       <div class="stage" id="stage"></div>
-      <div class="bar" id="sceneBar">
-        <button class="chip sm" data-group="scene" data-val="praia" aria-pressed="true">Praia</button>
-        <button class="chip sm" data-group="scene" data-val="parque" aria-pressed="false">Parque</button>
-        <button class="chip sm" data-group="scene" data-val="praca" aria-pressed="false">Praça</button>
-        <button class="chip sm" data-group="scene" data-val="rua" aria-pressed="false">Rua</button>
-        <button class="chip sm" data-group="scene" data-val="neutro" aria-pressed="false">Neutro</button>
-      </div>
-      </div>
-      <div class="step">
-        <h3>Estampa</h3>
-        <div class="pats" id="pats"></div>
       </div>
       <div class="step">
         <h3>Produto</h3>
@@ -317,6 +320,20 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
           <button class="chip" data-group="leash" data-val="guia" aria-pressed="false">Guia</button>
           <button class="chip" data-group="leash" data-val="none" aria-pressed="false">Nenhuma</button>
         </div>
+      </div>
+      <div class="step">
+        <h3>Estampa</h3>
+        <div class="pats" id="pats"></div>
+      </div>
+      <div class="step">
+        <h3>Cenário</h3>
+        <div class="bar" id="sceneBar">
+        <button class="chip sm" data-group="scene" data-val="praia" aria-pressed="true">Praia</button>
+        <button class="chip sm" data-group="scene" data-val="parque" aria-pressed="false">Parque</button>
+        <button class="chip sm" data-group="scene" data-val="praca" aria-pressed="false">Praça</button>
+        <button class="chip sm" data-group="scene" data-val="rua" aria-pressed="false">Rua</button>
+        <button class="chip sm" data-group="scene" data-val="neutro" aria-pressed="false">Neutro</button>
+      </div>
       </div>
     </div></details></div>
   </section>
@@ -338,15 +355,8 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
         </div>
         <div class="row">
           <div><label class="f" for="lfKg">Peso do cachorro (kg)</label><input type="number" id="lfKg" inputmode="decimal" min="1" max="80" step="0.5" required placeholder="ex.: 12"></div>
-          <div><label class="f">Medidas</label><div class="chips" style="margin-top:4px">
-            <label class="ck" style="margin:0"><input type="radio" name="lfMed" value="fita" required><span>Medi com fita</span></label>
-            <label class="ck" style="margin:0"><input type="radio" name="lfMed" value="estimada"><span>Ainda não medi</span></label></div></div>
+
         </div>
-        <div class="row" id="lfMedidas" style="display:none">
-          <div><label class="f" for="lfNeck">Pescoço (cm)</label><input type="number" id="lfNeck" inputmode="decimal" min="10" max="90"></div>
-          <div><label class="f" for="lfChest">Tórax (cm)</label><input type="number" id="lfChest" inputmode="decimal" min="15" max="130"></div>
-        </div>
-        <p class="hint" id="lfMedHint" style="display:none;margin:6px 0 0;font-size:11.5px">Sem medir, o tamanho sai estimado pela raça e pelo peso. Para acertar de primeira, meça o pescoço e o tórax (logo atrás das patas da frente) com uma fita métrica.</p>
         <div id="lfExtras" style="display:none"><p class="hint" style="margin:12px 0 0;font-size:11.5px">Outros cachorros: o tamanho sai estimado pela raça e pelo peso.</p></div>
         <button type="button" class="addDog" id="lfAdd">+ adicionar outro cachorro</button>
         <label class="f" for="lfEmail">E-mail</label><input type="email" id="lfEmail" autocomplete="email" inputmode="email" required>
@@ -1174,6 +1184,7 @@ function render(){
   $('estHint').innerHTML=st.manual?'Usando as medidas que você digitou. <button class="link" id="reset">Voltar à estimativa</button>':'Estimativa pela raça e pelo peso. Para acertar o tamanho, meça com fita métrica e ajuste aqui.';
   const r=$('reset');if(r)r.onclick=()=>{st.manual=false;render()};
   $('lead').classList.toggle('needbreed',!st.chosen);
+  $('previewBox').classList.toggle('nosticky',st.view==='foto');
   $('frontWrap').style.display=st.wear==='bw'?'block':'none';
   $('personOpts').style.display=st.human==='none'?'none':'block';
   $('kgOut').textContent=st.kg.toLocaleString('pt-BR')+' kg';
@@ -1236,12 +1247,7 @@ async function sendLead(e){
   if(!$('lfMkt').checked&&!st.semCupomOk){$('lfMktWarn').style.display='block';$('lfMktWarn').scrollIntoView({behavior:'smooth',block:'center'});return;}
   const kg=parseFloat(String($('lfKg').value).replace(',','.'));
   if(!(kg>=1&&kg<=80))return err.textContent='Informe o peso do cachorro em kg.';
-  const med=(document.querySelector('input[name=lfMed]:checked')||{}).value;
-  if(!med)return err.textContent='Diga se você mediu o cachorro com fita ou se ainda não mediu.';
-  if(med==='fita'){const n=parseFloat(String($('lfNeck').value).replace(',','.')),c=parseFloat(String($('lfChest').value).replace(',','.'));
-    if(!(n>=10&&n<=90&&c>=15&&c<=130))return err.textContent='Informe o pescoço e o tórax em centímetros.';
-    st.kg=kg;$('kg').value=kg;st.neck=n;st.chest=c;st.manual=true;}
-  else{st.kg=kg;$('kg').value=kg;st.manual=false;}
+  if(st.kg!==kg){st.kg=kg;$('kg').value=kg;}
   render();
   const d=leadPayload();
   if(!d.nome||!d.cachorro)return err.textContent='Preencha o seu nome e o do cachorro.';
@@ -1373,9 +1379,7 @@ function init(){
   $('lfMkt').addEventListener('change',()=>{if($('lfMkt').checked)$('lfMktWarn').style.display='none';});
   $('lfMktYes').addEventListener('click',()=>{$('lfMkt').checked=true;$('lfMktWarn').style.display='none';$('leadForm').requestSubmit();});
   $('lfMktNo').addEventListener('click',()=>{st.semCupomOk=true;$('lfMktWarn').style.display='none';$('leadForm').requestSubmit();});
-  document.querySelectorAll('input[name=lfMed]').forEach(r=>r.addEventListener('change',()=>{const f=r.value==='fita'&&r.checked;
-    $('lfMedidas').style.display=f?'grid':'none';$('lfMedHint').style.display=f?'none':'block';
-    if(f&&st.manual){$('lfNeck').value=st.neck;$('lfChest').value=st.chest;}}));$('lfAdd').addEventListener('click',addExtraDog);
+$('lfAdd').addEventListener('click',addExtraDog);
   $('capBtn').onclick=()=>{st.cap=!st.cap;$('capBtn').setAttribute('aria-pressed',st.cap);render()};
   document.addEventListener('click',e=>{const b=e.target.closest('.chip[data-group]');if(!b)return;const grp=b.dataset.group;
     if(grp==='wear'&&st.wear===b.dataset.val){st.wear='none';b.setAttribute('aria-pressed','false');render();return;}
