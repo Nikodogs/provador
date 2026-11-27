@@ -219,6 +219,8 @@ details.mais>summary::-webkit-details-marker{display:none}
 details.mais>summary::before{content:'+ '}
 details.mais[open]>summary::before{content:'− '}
 @media(min-width:920px){main{grid-template-areas:"dog preview" "stage preview" "result preview";grid-template-rows:auto auto 1fr}}
+.stage.auto{background:#e9e3d8}
+.stage .autoTag{position:absolute;left:8px;bottom:8px;z-index:3;font-size:10px;letter-spacing:.04em;background:rgba(255,250,242,.88);color:#2A2A2A;padding:3px 7px;border-radius:999px}
 </style>
 </head>
 <body>
@@ -1196,6 +1198,15 @@ function photoHint(){
   return st.wear==='coleira'?'Arraste os pontos: <strong>1</strong> nuca e <strong>2</strong> garganta, onde a coleira fica.'+(st.leash!=='none'?' O ponto laranja <strong>G</strong> leva a guia para onde você quiser.':''):
     'Arraste os pontos: <strong>1</strong> base do pescoço nas costas, <strong>2</strong> frente do peito, <strong>3</strong> costas, logo atrás das patas dianteiras, <strong>4</strong> barriga, logo atrás das patas dianteiras, e <strong>5</strong> peito, entre as patas dianteiras. A largura da fita segue a medida do pescoço.'+(st.leash!=='none'?' O ponto laranja <strong>G</strong> leva a guia para onde você quiser, por exemplo para trás do cachorro.':'');
 }
+// "Só o cachorro": mostra a foto padrão da raça (quando existe), com o produto aplicado. Vira-lata segue no desenho.
+function autoModel(){if(st.human!=='none'||st.view!=='lado'||!st.chosen||['srd','caramelo'].includes(st.breed))return null;return MODELS.find(m=>m.breed===st.breed)||null}
+function renderAutoModel(m){
+  const keep={photo:st.photo,pw:st.pw,ph:st.ph,pts:st.pts,cpts:st.cpts,lend:st.lend,showPts:st.showPts};
+  Object.assign(st,{photo:m.src,pw:m.w,ph:m.h,pts:JSON.parse(JSON.stringify(m.pts)),cpts:JSON.parse(JSON.stringify(m.col)),lend:null,showPts:false});
+  let out=renderPhoto();Object.assign(st,keep);
+  out=out.replace(/^<button class="ptsToggle"[\s\S]*?<\/button>/,'');
+  return out+`<div class="autoTag">Foto ilustrativa da raça</div>`;
+}
 function render(){
   const e=estimate();
   if(!st.manual){st.neck=e.neck;st.chest=e.chest;st.front=e.front;const sh=st.chosen;$('neck').value=sh?e.neck:'';$('chest').value=sh?e.chest:'';$('front').value=sh?e.front:'';}
@@ -1217,7 +1228,8 @@ function render(){
   $('photoBar').style.display=st.view==='foto'&&st.photo?'block':'none';
   if(st.view==='foto'&&st.photo){const m=st.model&&MODELS.find(x=>x.k===st.model);$('modelStrip').innerHTML=(m&&m.cr?`<p class="credit">Foto: ${m.cr} / Pexels</p>`:'')+`<details style="margin-top:8px"><summary>Testar com outro modelo</summary>${modelGrid()}</details>`;}$('photoHint').innerHTML=photoHint();
   $('stage').classList.toggle('photo',st.view==='foto');
-  $('stage').innerHTML=(st.view==='foto'?renderPhoto():st.view==='pov'?renderTop():renderSide())+(st.view==='lado'?`<button type="button" class="zoomBtn" aria-pressed="${!!st.zoom}" aria-label="${st.zoom?'Ver o passeio inteiro':'Ver o cachorro de perto'}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l5.5 5.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M7 10h6${st.zoom?'':'M10 7v6'}" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:'');
+  const AM=autoModel();$('stage').classList.toggle('auto',!!AM);
+  $('stage').innerHTML=(AM?renderAutoModel(AM):st.view==='foto'?renderPhoto():st.view==='pov'?renderTop():renderSide())+(st.view==='lado'&&!AM?`<button type="button" class="zoomBtn" aria-pressed="${!!st.zoom}" aria-label="${st.zoom?'Ver o passeio inteiro':'Ver o cachorro de perto'}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l5.5 5.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M7 10h6${st.zoom?'':'M10 7v6'}" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:'');
   renderRecs();
 }
 
