@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Provador Niko: veja como fica e qual tamanho veste | Niko Dogs</title>
-<meta name="description" content="Escolha a raça, o peso e a estampa, veja o peitoral, a guia e a No Hands no seu cachorro e descubra o tamanho certo. Ganhe 15% na primeira compra.">
+<meta name="description" content="Escolha a raça, o peso e a estampa, veja o peitoral, a guia tradicional e a guia mãos livres no seu cachorro e descubra o tamanho certo. Ganhe 15% na primeira compra.">
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
@@ -221,6 +221,9 @@ details.mais[open]>summary::before{content:'− '}
 @media(min-width:920px){main{grid-template-areas:"dog preview" "stage preview" "result preview";grid-template-rows:auto auto 1fr}}
 .stage.auto{background:#e9e3d8}
 .stage .autoTag{position:absolute;left:8px;bottom:8px;z-index:3;font-size:10px;letter-spacing:.04em;background:rgba(255,250,242,.88);color:#2A2A2A;padding:3px 7px;border-radius:999px}
+.sceneDock{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;margin-top:8px;max-height:48px;opacity:1;transition:max-height .25s ease,opacity .2s ease,margin-top .25s ease;-webkit-overflow-scrolling:touch}
+.sceneDock .chip{flex:0 0 auto}
+.sceneDock.hide{max-height:0;opacity:0;margin-top:0;overflow:hidden;pointer-events:none}
 </style>
 </head>
 <body>
@@ -308,6 +311,13 @@ details.mais[open]>summary::before{content:'− '}
         <div id="modelStrip"></div>
       </div>
       <div class="stage" id="stage"></div>
+      <div class="bar sceneDock" id="sceneBar" aria-label="Cenário">
+        <button class="chip sm" data-group="scene" data-val="praia" aria-pressed="true">Praia</button>
+        <button class="chip sm" data-group="scene" data-val="parque" aria-pressed="false">Parque</button>
+        <button class="chip sm" data-group="scene" data-val="praca" aria-pressed="false">Praça</button>
+        <button class="chip sm" data-group="scene" data-val="rua" aria-pressed="false">Rua</button>
+        <button class="chip sm" data-group="scene" data-val="neutro" aria-pressed="false">Neutro</button>
+      </div>
       </div>
       <div class="step">
         <h3>Quem leva</h3>
@@ -327,8 +337,8 @@ details.mais[open]>summary::before{content:'− '}
         </div>
         <label class="f">Com você</label>
         <div class="chips">
-          <button class="chip" data-group="leash" data-val="nohands" aria-pressed="true">No Hands</button>
-          <button class="chip" data-group="leash" data-val="guia" aria-pressed="false">Guia</button>
+          <button class="chip" data-group="leash" data-val="nohands" aria-pressed="true">Mãos livres</button>
+          <button class="chip" data-group="leash" data-val="guia" aria-pressed="false">Guia tradicional</button>
           <button class="chip" data-group="leash" data-val="none" aria-pressed="false">Nenhuma</button>
         </div>
       </div>
@@ -336,21 +346,11 @@ details.mais[open]>summary::before{content:'− '}
         <h3>Estampa</h3>
         <div class="pats" id="pats"></div>
       </div>
-      <details class="mais"><summary>Mais opções: vista, foto do seu cachorro e cenário</summary>
+      <details class="mais"><summary>Mais opções: vista e foto do seu cachorro</summary>
       <div class="bar views" style="margin-top:10px">
         <button class="chip sm" data-group="view" data-val="lado" aria-pressed="true">De lado</button>
         <button class="chip sm" data-group="view" data-val="pov" aria-pressed="false">Seu olhar (de cima)</button>
         <button class="chip sm" data-group="view" data-val="foto" aria-pressed="false">Foto do seu cachorro</button>
-      </div>
-      <div class="step">
-        <h3>Cenário</h3>
-        <div class="bar" id="sceneBar">
-        <button class="chip sm" data-group="scene" data-val="praia" aria-pressed="true">Praia</button>
-        <button class="chip sm" data-group="scene" data-val="parque" aria-pressed="false">Parque</button>
-        <button class="chip sm" data-group="scene" data-val="praca" aria-pressed="false">Praça</button>
-        <button class="chip sm" data-group="scene" data-val="rua" aria-pressed="false">Rua</button>
-        <button class="chip sm" data-group="scene" data-val="neutro" aria-pressed="false">Neutro</button>
-      </div>
       </div>
       </details>
     </div></details></div>
@@ -507,7 +507,7 @@ const URLS={
 };
 const DARKFACE=['pug','pequines'];
 const BONE='bone-niko-5edu0';
-const NAMES={peitoral:'Peitoral H',bw:'Peitoral Better Walk',coleira:'Coleira',guia:'Guia',nohands:'Guia No Hands'};
+const NAMES={peitoral:'Peitoral H',bw:'Peitoral Better Walk',coleira:'Coleira',guia:'Guia tradicional',nohands:'Guia Mãos Livres'};
 const PP_PEITORAL=['shore','horizon','checker'];
 const T={
   peitoral:[{s:'PP',f:10,neck:[20,30],chest:[26,40]},{s:'P',f:15,neck:[24,38],chest:[32,53]},{s:'M',f:20,neck:[31,50],chest:[42,69]},{s:'G',f:25,neck:[40,67],chest:[60,100]}],
@@ -1153,7 +1153,8 @@ function renderTop(){
   if(st.leash!=='none'){const mid=[(attach[0]+end[0])/2+30,(attach[1]+end[1])/2];
     leash=`<path d="M${attach[0]} ${attach[1]} Q${mid[0]} ${mid[1]} ${end[0]} ${end[1]}" stroke="rgba(0,0,0,.15)" stroke-width="${lw+1.5}" fill="none" transform="translate(5 6)"/>${curveBand([attach[0],attach[1]],[mid[0],mid[1]],[end[0],end[1]],lw)}`+snap(attach,lw,ang(attach,mid));
     if(st.leash==='nohands'&&st.human!=='none')leash+=dring([200,506],lw*1.4,180);}
-  return `<svg viewBox="0 0 400 520" role="img" aria-label="Vista de cima: o seu olhar no passeio"><defs>${DEFS}</defs>${groundTop(st.scene)}${g}${leash}${me}</svg>`;
+  const vy0=Math.max(0,headY-hr*1.8-24),vy1=st.human!=='none'?520:Math.min(520,rear+70),vh=vy1-vy0,vw=Math.min(400,Math.max(vh*.62,W*3.2)),vx0=cx-vw/2;
+  return `<svg viewBox="${vx0} ${vy0} ${vw} ${vh}" role="img" aria-label="Vista de cima: o seu olhar no passeio"><defs>${DEFS}</defs>${groundTop(st.scene)}${g}${leash}${me}</svg>`;
 }
 
 // ---------- foto do cliente ----------
@@ -1214,7 +1215,7 @@ function render(){
   $('estHint').innerHTML=st.manual?'Usando as medidas que você digitou. <button class="link" id="reset">Voltar à estimativa</button>':'Estimativa pela raça e pelo peso. Para acertar o tamanho, meça com fita métrica e ajuste aqui.';
   const r=$('reset');if(r)r.onclick=()=>{st.manual=false;render()};
   $('lead').classList.toggle('needbreed',!st.chosen);
-  $('previewBox').classList.toggle('nosticky',st.view==='foto');
+  $('previewBox').classList.toggle('nosticky',st.view==='foto'||st.view==='pov');
   $('frontWrap').style.display=st.wear==='bw'?'block':'none';
   $('personOpts').style.display=st.human==='none'?'none':'block';
   $('kgOut').textContent=st.kg.toLocaleString('pt-BR')+' kg';
@@ -1223,12 +1224,12 @@ function render(){
   $('sumDog').textContent=!st.chosen?'Escolha a raça':`${breed()[1]} · ${st.kg.toLocaleString('pt-BR')} kg · pescoço ${st.neck} cm, tórax ${st.chest} cm`;
   $('sumStage').textContent=`${PATS.find(p=>p.k===st.pat).n} · ${st.wear==='none'?'sem peitoral':NAMES[st.wear]}${st.leash!=='none'?' + '+NAMES[st.leash]:''}`;
   $('sumResult').textContent='Tamanhos recomendados e links da loja';
-  DEFS='';PID=0;
-  $('sceneBar').style.display=st.view==='foto'?'none':'flex';
+  DEFS='';PID=0;const AM=autoModel();
+  $('sceneBar').style.display=(st.view==='foto'||AM)?'none':'flex';
   $('photoBar').style.display=st.view==='foto'&&st.photo?'block':'none';
   if(st.view==='foto'&&st.photo){const m=st.model&&MODELS.find(x=>x.k===st.model);$('modelStrip').innerHTML=(m&&m.cr?`<p class="credit">Foto: ${m.cr} / Pexels</p>`:'')+`<details style="margin-top:8px"><summary>Testar com outro modelo</summary>${modelGrid()}</details>`;}$('photoHint').innerHTML=photoHint();
   $('stage').classList.toggle('photo',st.view==='foto');
-  const AM=autoModel();$('stage').classList.toggle('auto',!!AM);
+  $('stage').classList.toggle('auto',!!AM);
   $('stage').innerHTML=(AM?renderAutoModel(AM):st.view==='foto'?renderPhoto():st.view==='pov'?renderTop():renderSide())+(st.view==='lado'&&!AM?`<button type="button" class="zoomBtn" aria-pressed="${!!st.zoom}" aria-label="${st.zoom?'Ver o passeio inteiro':'Ver o cachorro de perto'}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l5.5 5.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M7 10h6${st.zoom?'':'M10 7v6'}" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`:'');
   renderRecs();
 }
@@ -1354,7 +1355,7 @@ function renderRecs(){
     if(URLS.kitPasseio[st.pat])kits.push(['kitPasseio','Kit Passeio','Guia + Peitoral H']);
     if(URLS.kitCompleto[st.pat])kits.push(['kitCompleto','Kit Completo','Coleira + Guia + Peitoral H']);
   }
-  if(st.wear==='peitoral'&&st.leash==='nohands'&&URLS.kitMaos[st.pat])kits.push(['kitMaos','Kit Mãos Livres','Guia No Hands + Peitoral H']);
+  if(st.wear==='peitoral'&&st.leash==='nohands'&&URLS.kitMaos[st.pat])kits.push(['kitMaos','Kit Mãos Livres','Guia Mãos Livres + Peitoral H']);
   if(kits.length){
     html+=`<p class="hint" style="margin:0 0 2px">${kits.length>1?'Leve junto em kit:':'Leve junto no kit:'}</p>`;
     kits.forEach(([k,n,d])=>{html+=`<div class="rec kit"><div class="top2"><div class="name">${n}<span>${d} · ${patName()}</span></div>${pSize?`<div class="size">${pSize}</div>`:''}</div><p>${pSize?`Peça o kit no tamanho ${pSize}, o mesmo do peitoral. `:''}Sai com condição de kit no site.</p><a class="buy" href="${STORE+URLS[k][st.pat]+UTM+'&utm_content='+k+'-'+st.pat}" target="_blank" rel="noopener">Ver o ${n} ${patName()} na loja</a></div>`;});
@@ -1362,7 +1363,7 @@ function renderRecs(){
   }
   items.forEach(kind=>{
     let size='—',lines=[],link=url(kind);
-    if(kind==='nohands'){size='Único';lines.push('Ajustável de 1,20 m a 2,80 m. Use na cintura, atravessada no corpo ou como guia tradicional. Fita de 25 mm.');}
+    if(kind==='nohands'){size='U';lines.push('Tamanho único. Ajustável de 1,20 m a 2,80 m. Use na cintura, atravessada no corpo ou como guia tradicional. Fita de 25 mm.');}
     else if(kind==='guia'){const g=wr&&wr.size?(wr.size==='PP'?'P':wr.size):(st.chest<50?'P':st.chest<70?'M':'G');size=g;lines.push(`Fita de ${FITA_GUIA[g]} mm, combinando com o porte. 1,20 m de comprimento.`);}
     else{const r=recommend(kind);
       if(r.size){size=r.size;const rg=r.row,parts=[];if(rg.neck)parts.push(`pescoço ${rg.neck[0]}–${rg.neck[1]} cm`);if(rg.chest)parts.push(`tórax ${rg.chest[0]}–${rg.chest[1]} cm`);
@@ -1402,6 +1403,10 @@ function init(){
   const sw=p=>`<button class="pat" data-p="${p.k}" aria-pressed="${p.k===st.pat}"><svg viewBox="0 0 60 14" preserveAspectRatio="none"><rect width="60" height="14" fill="url(#${TILES[p.k]?'sw-'+p.k:p.id})"/></svg>${p.n}</button>`;
   $('pats').innerHTML=[['Originals',['shore','horizon','checker']],['Artist Series',['planet','flavours']],['Colors',['black','verde','laranja']]].map(([f,ks])=>`<div class="fam" style="grid-column:1/-1">${f}</div>`+ks.map(k=>sw(PATS.find(p=>p.k===k))).join('')).join('');
   $('pats').onclick=e=>{const b=e.target.closest('.pat');if(!b)return;st.pat=b.dataset.p;$('pats').querySelectorAll('.pat').forEach(x=>x.setAttribute('aria-pressed',x===b));render()};
+  {let lastY=scrollY;const dock=$('sceneBar'),pbx=$('previewBox');
+    addEventListener('scroll',()=>{const y=scrollY,dy=y-lastY;if(Math.abs(dy)<8)return;lastY=y;
+      if(matchMedia('(min-width:920px)').matches){dock.classList.remove('hide');return;}
+      const stuck=pbx.getBoundingClientRect().top<=1;dock.classList.toggle('hide',dy>0&&stuck);},{passive:true});}
   // No computador, a imagem fica fixa na coluna da direita e os controles rolam à esquerda.
   const mq=matchMedia('(min-width:920px)'),pb=$('previewBox'),home=$('stage').closest('.secbody'),homeNext=home.querySelector('.step');
   const placePreview=()=>{if(mq.matches){$('preview').hidden=false;$('preview').appendChild(pb);}else{$('preview').hidden=true;home.insertBefore(pb,homeNext);}};
