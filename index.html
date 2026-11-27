@@ -593,7 +593,7 @@ const SHOES=[['#f4f1ea','Branco'],['#1e1e1e','Preto'],['#d6c3a0','Bege'],['#8a5a
 
 const st={zoom:false,breed:'beagle',chosen:false,kg:12,coat:'#b5733a',mark:'#f4efe6',neck:null,chest:null,front:null,manual:false,
   wear:'peitoral',leash:'nohands',pat:'shore',human:'ela',view:'lado',scene:'praia',
-  skin:'#c99268',hair:'#3b2a20',hstyle:'longo',top:'#efe9df',bottom:'#3b4a63',bstyle:'calca',shoe:'#f4f1ea',cap:false,model:null,lend:null,cpts:null,photo:null,pw:0,ph:0,pts:null,showPts:true};
+  skin:'#c99268',hair:'#3b2a20',hstyle:'longo',top:'#efe9df',bottom:'#1e1e1e',bstyle:'calca',shoe:'#f4f1ea',cap:false,model:null,lend:null,cpts:null,photo:null,pw:0,ph:0,pts:null,showPts:true};
 
 const $=id=>document.getElementById(id);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -959,12 +959,12 @@ function natalHat(hx,hy,hd){
 }
 
 // ---------- pessoa (frente) ----------
-function hairBack(cx){const c=st.hair;if(st.hstyle==='longo')return `<path d="M${cx-17} 6 Q${cx-20} 50 ${cx-14} 70 H${cx+14} Q${cx+20} 50 ${cx+17} 6 Z" fill="${c}"/>`;return ''}
+function hairBack(cx){const c=st.hair;if(st.hstyle==='longo')return `<path d="M${cx-17} 4 Q${cx-25} 45 ${cx-24} 84 Q${cx} 92 ${cx+24} 84 Q${cx+25} 45 ${cx+17} 4 Z" fill="${c}"/>`;return ''}
 function hairFront(cx){
   const c=st.hair;
   const capH=`<path d="M${cx-15.5} 12 Q${cx-16} -9 ${cx} -7 Q${cx+16} -9 ${cx+15.5} 12 Q${cx+12} 0 ${cx} 1 Q${cx-12} 0 ${cx-15.5} 12Z" fill="${c}"/>`;
   if(st.hstyle==='curto')return capH;
-  if(st.hstyle==='longo')return capH+`<path d="M${cx-15.5} 10 Q${cx-18} 30 ${cx-15} 44" stroke="${c}" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M${cx+15.5} 10 Q${cx+18} 30 ${cx+15} 44" stroke="${c}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  if(st.hstyle==='longo')return capH+`<path d="M${cx-15.5} 8 Q${cx-21} 34 ${cx-20} 62" stroke="${c}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M${cx+15.5} 8 Q${cx+21} 34 ${cx+20} 62" stroke="${c}" stroke-width="7" fill="none" stroke-linecap="round"/>`;
   if(st.hstyle==='coque')return capH+`<circle cx="${cx}" cy="-10" r="8" fill="${c}"/>`;
   if(st.hstyle==='cacheado'){let s='';[[-13,4],[-9,-5],[0,-9],[9,-5],[13,4],[-15,12],[15,12],[-5,-7],[5,-7]].forEach(([x,y])=>s+=`<circle cx="${cx+x}" cy="${y}" r="7.5" fill="${c}"/>`);return s}
   if(st.hstyle==='raspado')return `<path d="M${cx-14.5} 9 Q${cx-15} -6 ${cx} -5 Q${cx+15} -6 ${cx+14.5} 9 Q${cx} 0 ${cx-14.5} 9Z" fill="${c}" opacity=".55"/>`;
@@ -974,7 +974,7 @@ function capSVG(cx){if(!st.cap)return '';return `<path d="M${cx-16} 6 Q${cx-16} 
 function shoeFront(x,flip){const s=st.shoe,sole=st.shoe==='#f4f1ea'?'#e2ddd3':'#f4f1ea';return `<g transform="translate(${x} 279) scale(${flip?-1:1} 1)"><path d="M-9 0 H9 Q14 0 15 6 V9 H-15 V6 Q-14 0 -9 0Z" fill="${s}" stroke="rgba(0,0,0,.25)" stroke-width=".6"/><rect x="-15" y="8" width="30" height="3.2" rx="1.5" fill="${sole}" stroke="rgba(0,0,0,.2)" stroke-width=".5"/><path d="M-4 2 H4 M-4 4.4 H4" stroke="rgba(0,0,0,.25)" stroke-width=".7"/></g>`}
 function humanSide(beltT){
   const cx=422,ela=st.human==='ela',sk=st.skin,top=st.top,pants=st.bottom,skD=shade(sk,.12);
-  const sh=ela?25:29,wa=ela?20:24,hip=ela?25:24;
+  const sh=ela?22:31,wa=ela?15.5:25,hip=ela?26:23.5,armW=ela?8.5:11.5;
   let h=hairBack(cx);
   // pernas
   const legL=`M${cx-hip} 146 L${cx-1.5} 146 L${cx-4} 280 L${cx-17} 280 Z`,legR=`M${cx+1.5} 146 L${cx+hip} 146 L${cx+17} 280 L${cx+4} 280 Z`;
@@ -985,13 +985,15 @@ function humanSide(beltT){
   h+=shoeFront(cx-10.5,false)+shoeFront(cx+10.5,true);
   // tronco
   h+=`<path d="M${cx-sh} 46 Q${cx-sh-7} 48 ${cx-sh-9} 58 L${cx-sh-12} 84 L${cx-sh-2} 88 L${cx-wa-1} 74 L${cx-hip} 150 L${cx+hip} 150 L${cx+wa+1} 74 L${cx+sh+2} 88 L${cx+sh+12} 84 L${cx+sh+9} 58 Q${cx+sh+7} 48 ${cx+sh} 46 Q${cx} 56 ${cx-sh} 46Z" fill="${top}" stroke="rgba(0,0,0,.08)" stroke-width=".8"/>`;
-  h+=`<path d="M${cx-9} 47 Q${cx} 56 ${cx+9} 47" stroke="${shade(top,.15)}" stroke-width="1.6" fill="none"/>`;
+  h+=ela?`<path d="M${cx-10} 46 L${cx} 60 L${cx+10} 46Z" fill="${sk}"/><path d="M${cx-10} 46 L${cx} 60 L${cx+10} 46" stroke="${shade(top,.15)}" stroke-width="1.4" fill="none"/><path d="M${cx-wa-1} 92 Q${cx} 98 ${cx+wa+1} 92" stroke="${shade(top,.1)}" stroke-width="1" fill="none"/>`:`<path d="M${cx-9} 47 Q${cx} 56 ${cx+9} 47" stroke="${shade(top,.15)}" stroke-width="1.6" fill="none"/>`;
   // pescoço e cabeça
   h+=`<rect x="${cx-6.5}" y="26" width="13" height="22" rx="5" fill="${skD}"/><ellipse cx="${cx}" cy="13" rx="14.5" ry="17.5" fill="${sk}"/>`;
   h+=`<ellipse cx="${cx-14.5}" cy="15" rx="2.6" ry="4" fill="${skD}"/><ellipse cx="${cx+14.5}" cy="15" rx="2.6" ry="4" fill="${skD}"/>`;
+  if(!ela)h+=`<path d="M${cx-13.5} 14 Q${cx-13} 30 ${cx} 31 Q${cx+13} 30 ${cx+13.5} 14 Q${cx+11} 24 ${cx} 25 Q${cx-11} 24 ${cx-13.5} 14Z" fill="${st.hair}" opacity=".85"/>`;
+  else h+=`<circle cx="${cx-14.5}" cy="21" r="1.8" fill="#E2983B"/><circle cx="${cx+14.5}" cy="21" r="1.8" fill="#E2983B"/>`;
   h+=hairFront(cx)+capSVG(cx);
   // braços: o esquerdo (lado do cachorro) depende da guia
-  const arm=(a,b,c)=>`<path d="M${a[0]} ${a[1]} Q${b[0]} ${b[1]} ${c[0]} ${c[1]}" stroke="${sk}" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="${c[0]}" cy="${c[1]+2}" r="5.6" fill="${sk}"/>`;
+  const arm=(a,b,c)=>`<path d="M${a[0]} ${a[1]} Q${b[0]} ${b[1]} ${c[0]} ${c[1]}" stroke="${sk}" stroke-width="${armW}" fill="none" stroke-linecap="round"/><circle cx="${c[0]}" cy="${c[1]+2}" r="${armW*.56}" fill="${sk}"/>`;
   let hand=null;
   if(st.leash==='guia'){h+=arm([cx-sh-7,84],[cx-sh-20,120],[cx-sh-25,150]);hand=[cx-sh-25,154];}
   else h+=arm([cx-sh-7,84],[cx-sh-12,112],[cx-sh-9,136]);
@@ -1401,6 +1403,7 @@ $('lfAdd').addEventListener('click',addExtraDog);
   $('capBtn').onclick=()=>{st.cap=!st.cap;$('capBtn').setAttribute('aria-pressed',st.cap);render()};
   document.addEventListener('click',e=>{const b=e.target.closest('.chip[data-group]');if(!b)return;const grp=b.dataset.group;
     if(grp==='wear'&&st.wear===b.dataset.val){st.wear='none';b.setAttribute('aria-pressed','false');render();return;}
+    if(grp==='human'){if(b.dataset.val==='ela')Object.assign(st,{hstyle:'longo',top:'#efe9df',bottom:'#1e1e1e',bstyle:'calca'});else if(b.dataset.val==='ele')Object.assign(st,{hstyle:'curto',top:'#24324a',bottom:'#d8c7a6',bstyle:'bermuda'});}
     st[grp]=b.dataset.val;document.querySelectorAll(`.chip[data-group="${grp}"]`).forEach(x=>x.setAttribute('aria-pressed',x===b));render();});
   const loadPhoto=f=>{if(!f)return;PHOTO_ERR='';
     const url=URL.createObjectURL(f),im=new Image();
