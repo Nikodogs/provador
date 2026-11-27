@@ -212,6 +212,13 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
 
 .stage .zoomBtn{position:absolute;left:8px;top:8px;z-index:3;width:34px;height:34px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid rgba(42,42,42,.15);background:rgba(255,250,242,.9);color:#2A2A2A;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.12)}
 .stage .zoomBtn[aria-pressed="true"]{background:#804B3C;color:#FFFAF2;border-color:#804B3C}
+
+details.mais{margin-top:14px;border-top:1px dashed var(--line);padding-top:10px}
+details.mais>summary{cursor:pointer;font-size:13px;color:var(--marrom);list-style:none;font-weight:600}
+details.mais>summary::-webkit-details-marker{display:none}
+details.mais>summary::before{content:'+ '}
+details.mais[open]>summary::before{content:'− '}
+@media(min-width:920px){main{grid-template-areas:"dog preview" "stage preview" "result preview";grid-template-rows:auto auto 1fr}}
 </style>
 </head>
 <body>
@@ -230,19 +237,13 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
 <div class="hero"><div class="in">
   <h1>Provador<br>Niko</h1>
   <span class="linha">PEITORAL · GUIA · NO HANDS · COLEIRA</span>
-  <p>Monte o passeio do jeito de vocês: quem leva, quem vai junto e a estampa. A gente mostra como fica e qual tamanho veste.</p>
+  <p>Escolha a raça, veja como fica no passeio e descubra o tamanho certo. Leva 1 minuto.</p>
   <span class="nt-tag" id="ntTag">Presente de Natal na ficha</span>
 </div></div>
 
 <main>
-  <!-- 1. PESSOA -->
-  <section class="card" id="person">
-    <details class="sec"><summary><h2><span class="n">1</span>Você no passeio</h2><span class="sum" id="sumPerson"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
-    <div class="chips">
-      <button class="chip" data-group="human" data-val="ela" aria-pressed="true">Tutora</button>
-      <button class="chip" data-group="human" data-val="ele" aria-pressed="false">Tutor</button>
-      <button class="chip" data-group="human" data-val="none" aria-pressed="false">Só o cachorro</button>
-    </div>
+  <!-- opções da pessoa (escondidas; valores padrão) -->
+  <div hidden><span id="sumPerson"></span>
     <div id="personOpts">
       <label class="f">Tom de pele</label><div class="chips" id="cSkin"></div>
       <label class="f">Cabelo</label>
@@ -259,15 +260,16 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
       <label class="f">Acessório</label>
       <div class="chips"><button class="chip sm" id="capBtn" aria-pressed="false">Boné Niko</button></div>
     </div>
-  </div></details></section>
+  </div>
 
   <!-- 2. CACHORRO -->
   <section class="card" id="dog">
-    <details class="sec" open><summary><h2><span class="n">2</span>O seu cachorro</h2><span class="sum" id="sumDog"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
+    <details class="sec" open><summary><h2><span class="n">1</span>O seu cachorro</h2><span class="sum" id="sumDog"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
     <label class="f" for="breed">Raça ou porte</label>
     <select id="breed"></select>
     <label class="f" for="kg">Peso: <strong id="kgOut"></strong></label>
     <input type="range" id="kg" min="1" max="50" step="0.5">
+    <details class="mais"><summary>Ajustar pelagem e medidas (opcional)</summary>
     <label class="f">Pelagem</label><div class="chips" id="coats"></div>
     <label class="f">Detalhes (peito, focinho e patas)</label><div class="chips" id="marks"></div>
     <div class="step">
@@ -285,18 +287,14 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
         <strong>Frente (Better Walk):</strong> em linha reta na frente do peito, de um ombro ao outro.</p>
       </details>
     </div>
+    </details>
   </div></details></section>
 
   <!-- 3. PASSEIO: imagem + estampa + produto -->
   <section id="stageWrap">
     <div class="card">
-      <details class="sec" open><summary><h2><span class="n">3</span>Monte o passeio</h2><span class="sum" id="sumStage"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
+      <details class="sec" open><summary><h2><span class="n">2</span>Monte o passeio</h2><span class="sum" id="sumStage"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
       <div id="previewBox">
-      <div class="bar views">
-        <button class="chip sm" data-group="view" data-val="lado" aria-pressed="true">De lado</button>
-        <button class="chip sm" data-group="view" data-val="pov" aria-pressed="false">Seu olhar (de cima)</button>
-        <button class="chip sm" data-group="view" data-val="foto" aria-pressed="false">Foto do seu cachorro</button>
-      </div>
       <div id="photoBar" style="display:none;margin-bottom:10px">
         <div class="chips">
           <label class="chip sm" style="position:relative;overflow:hidden;display:inline-flex;align-items:center">Trocar foto<input type="file" id="photoIn" accept="image/*" class="fileov photoPick"></label>
@@ -308,6 +306,14 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
         <div id="modelStrip"></div>
       </div>
       <div class="stage" id="stage"></div>
+      </div>
+      <div class="step">
+        <h3>Quem leva</h3>
+        <div class="chips">
+          <button class="chip" data-group="human" data-val="ela" aria-pressed="true">Mulher</button>
+          <button class="chip" data-group="human" data-val="ele" aria-pressed="false">Homem</button>
+          <button class="chip" data-group="human" data-val="none" aria-pressed="false">Só o cachorro</button>
+        </div>
       </div>
       <div class="step">
         <h3>Produto</h3>
@@ -328,6 +334,12 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
         <h3>Estampa</h3>
         <div class="pats" id="pats"></div>
       </div>
+      <details class="mais"><summary>Mais opções: vista, foto do seu cachorro e cenário</summary>
+      <div class="bar views" style="margin-top:10px">
+        <button class="chip sm" data-group="view" data-val="lado" aria-pressed="true">De lado</button>
+        <button class="chip sm" data-group="view" data-val="pov" aria-pressed="false">Seu olhar (de cima)</button>
+        <button class="chip sm" data-group="view" data-val="foto" aria-pressed="false">Foto do seu cachorro</button>
+      </div>
       <div class="step">
         <h3>Cenário</h3>
         <div class="bar" id="sceneBar">
@@ -338,6 +350,7 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
         <button class="chip sm" data-group="scene" data-val="neutro" aria-pressed="false">Neutro</button>
       </div>
       </div>
+      </details>
     </div></details></div>
   </section>
 
@@ -345,7 +358,7 @@ body.natal .nt-tag{display:inline-block;margin-top:14px;font-size:11px;letter-sp
 
   <!-- 4. RESULTADO -->
   <section class="card" id="result">
-    <details class="sec" open><summary><h2><span class="n">4</span>Seu tamanho e os produtos</h2><span class="sum" id="sumResult"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
+    <details class="sec" open><summary><h2><span class="n">3</span>Seu tamanho e o cupom</h2><span class="sum" id="sumResult"></span><span class="chev" aria-hidden="true"></span></summary><div class="secbody">
     <div id="recs"></div>
     <div class="lead" id="lead">
       <div class="lead-h">Ganhe 15% na primeira compra</div>
